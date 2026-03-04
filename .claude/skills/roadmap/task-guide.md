@@ -138,6 +138,8 @@ Buscar templates del proyecto en `.claude/roadmap.local.md` primero; si no exist
 
 ## Estados del Task
 
+Los valores por defecto son los listados abajo. Si tu proyecto usa etiquetas diferentes (ej: "Completado" en vez de "Completed"), configurarlos en `.claude/roadmap.local.md` (campos `done-statuses`, `active-statuses`).
+
 | Estado | Emoji | Cuándo |
 |--------|-------|--------|
 | Pending | - | Task creado, sin especificación técnica |

@@ -45,6 +45,23 @@ Si `.claude/roadmap.local.md` no existe o no tiene `roadmap-root`, preguntar al 
 
 En todo este documento, `<roadmap-root>` se refiere al valor configurado.
 
+### Configuración de Filtros
+
+Leer `.claude/roadmap.local.md` YAML frontmatter para estos campos adicionales.
+Si un campo no existe, usar los defaults indicados:
+
+| Config key | Default | Placeholder |
+|------------|---------|-------------|
+| `done-statuses` | `['Completed', 'Obsolete']` | `<done-statuses>` |
+| `active-statuses` | `['Pending', 'Specified', 'In Progress']` | `<active-statuses>` |
+| `container-types` | `['feature', 'historia']` | `<container-types>` |
+
+Expresiones helper (pre-computar una vez, reusar en todos los comandos):
+
+- `<where-not-done>`: `not (estado in <done-statuses>)`
+- `<where-active>`: `estado in <active-statuses>`
+- `<where-leaf>`: `tipo not in <container-types>`
+
 ---
 
 ## Modo de Operación
@@ -208,8 +225,8 @@ Después de la aprobación, informar al usuario que puede ejecutar `/roadmap pla
 Vista jerárquica filtrada: solo Features con trabajo pendiente.
 
 **Procedimiento**:
-1. Ejecutar `rootline tree <roadmap-root>/ --where 'tipo not in ["feature", "historia"] && not (estado == "Completed")' --output table`
-2. Ejecutar `rootline stats <roadmap-root>/ --where 'tipo not in ["feature", "historia"] && not (estado == "Completed")' --output table`
+1. Ejecutar `rootline tree <roadmap-root>/ --where '<where-leaf> && <where-not-done>' --output table`
+2. Ejecutar `rootline stats <roadmap-root>/ --where '<where-leaf> && <where-not-done>' --output table`
 
 Presenta ambos outputs al usuario.
 
@@ -286,8 +303,8 @@ Generar **árbol de decisión** que muestre ramas ejecutables, cadenas de depend
 #### Paso 1: Recopilar datos (3 comandos en paralelo)
 
 Ejecutar en paralelo:
-1. `rootline tree <roadmap-root>/ --where "not (estado in ['Completed', 'Obsolete'])" --output json` — árbol jerárquico con paths, estados y conteos completed/total (~2 KB, reemplaza stats + query)
-2. `rootline graph <roadmap-root>/ --where "not (estado in ['Completed', 'Obsolete'])" --output json` — grafo de dependencias entre pendientes (~3 KB)
+1. `rootline tree <roadmap-root>/ --where "<where-not-done>" --output json` — árbol jerárquico con paths, estados y conteos completed/total (~2 KB, reemplaza stats + query)
+2. `rootline graph <roadmap-root>/ --where "<where-not-done>" --output json` — grafo de dependencias entre pendientes (~3 KB)
 3. `git log -5 --format='%h %s'` — últimos commits para proximidad
 
 **IMPORTANTE**: Después de Paso 1, NO ejecutar más comandos bash. Los Pasos 2-5 procesan los JSONs obtenidos.
@@ -307,8 +324,8 @@ NO ejecutar comandos adicionales. Todo se extrae de los 3 outputs del Paso 1.
 
 Usando `estado` de cada hoja del tree JSON (cmd 1):
 
-- **Ejecutables**: todas las tasks tienen estado Pending/Specified/In Progress, sin dependencias insatisfechas (verificar contra `edges[]` del graph, cmd 2)
-- **Bloqueadas**: al menos una task tiene `estado: Blocked` o dependencia cross-feature no Completed
+- **Ejecutables**: todas las tasks tienen estado en `<active-statuses>`, sin dependencias insatisfechas (verificar contra `edges[]` del graph, cmd 2)
+- **Bloqueadas**: al menos una task tiene `estado: Blocked` o dependencia cross-feature con estado no en `<done-statuses>`
 
 Dentro de ejecutables, identificar **quick wins** (ramas con 1 solo task).
 
@@ -353,7 +370,7 @@ Reglas de renderizado:
 - Usar `├─►` para ramas ejecutables, `├──` para bloqueadas
 - `↓ desbloquea` entre tasks con dependencia `[[blocks:]]`
 - `↓ CIERRA [capacidad]` en el último task de la rama (extraer del nombre del nodo Feature en el tree JSON)
-- Marcar tasks cuya dependencia ya está Completed pero siguen en Blocked como `[stale?]`
+- Marcar tasks cuya dependencia ya está en `<done-statuses>` pero siguen en Blocked como `[stale?]`
 - Ordenar ramas ejecutables por proximidad al último commit (extraer de `git log` del Paso 1)
 
 #### Paso 5: Renderizar criterios de decisión
@@ -395,7 +412,7 @@ Ejecutar Tasks pendientes en loop con confirmación entre cada uno.
 1. Ejecutar `rootline graph --check <roadmap-root>/` para validar dependencias antes de empezar
    - Si hay ciclos → reportar y **parar** (dependencias circulares impiden ejecución)
    - Si hay broken links → reportar como warning (pueden ser tasks aún no creados)
-2. Ejecutar `rootline query <roadmap-root>/ --where "tipo not in ['feature', 'historia']" --where "estado in ['Pending', 'Specified', 'In Progress']" --output table` para obtener tasks pendientes
+2. Ejecutar `rootline query <roadmap-root>/ --where "<where-leaf>" --where "<where-active>" --output table` para obtener tasks pendientes
 3. Si `--filter PATTERN` proporcionado, filtrar resultados por Epic/Feature path match
 4. Si `--max N`, tomar solo los primeros N tasks
 5. Mostrar tabla de tasks encontradas al usuario
@@ -421,8 +438,8 @@ Para cada task en orden:
 
 1. **Verificar dependencias**: Leer el archivo .md del task y buscar `[[blocks:TXXX-name]]` en el body.
    Para cada dependencia encontrada:
-   - Buscar el task referenciado y verificar que su frontmatter tiene `estado: Completed`
-   - Si alguna dependencia no está Completed → **skip** con mensaje: `⏭️ Bloqueado por: TXXX (estado: Pending)`
+   - Buscar el task referenciado y verificar que su frontmatter tiene `estado` con valor en `<done-statuses>`
+   - Si alguna dependencia no está en `<done-statuses>` → **skip** con mensaje: `⏭️ Bloqueado por: TXXX (estado: <valor>)`
    - Tasks bloqueados se reintentarán al final de la cola
 
 2. **Marcar inicio**: `TaskUpdate` → status: `in_progress`

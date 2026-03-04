@@ -1,6 +1,24 @@
 ---
 roadmap-root: docs/epics
+
+# Valores de estado que indican trabajo terminado (se EXCLUYEN de vistas pendientes)
+done-statuses:
+  - Completed
+  - Obsolete
+
+# Valores de estado que indican trabajo ejecutable (se INCLUYEN en queries de tasks)
+active-statuses:
+  - Pending
+  - Specified
+  - In Progress
+
+# Tipos que son contenedores, no tasks hoja (se EXCLUYEN de listados de tasks)
+container-types:
+  - feature
+  - historia
 ---
 
 <!-- Copiar este archivo como .claude/roadmap.local.md en tu proyecto.
-     Ajustar roadmap-root al directorio donde vive tu jerarquía de epics. -->
+     Ajustar roadmap-root al directorio donde vive tu jerarquía de epics.
+     Ajustar valores de status/tipo si tu proyecto usa etiquetas diferentes
+     (ej: "Completado" en vez de "Completed"). -->
