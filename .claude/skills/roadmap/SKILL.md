@@ -395,7 +395,7 @@ Ejecutar Tasks pendientes en loop con confirmación entre cada uno.
 1. Ejecutar `rootline graph --check <roadmap-root>/` para validar dependencias antes de empezar
    - Si hay ciclos → reportar y **parar** (dependencias circulares impiden ejecución)
    - Si hay broken links → reportar como warning (pueden ser tasks aún no creados)
-2. Ejecutar `rootline query <roadmap-root>/ --where "tipo not in ['feature', 'historia']" --where "estado in ['Specified', 'In Progress']" --output table` para obtener tasks pendientes
+2. Ejecutar `rootline query <roadmap-root>/ --where "tipo not in ['feature', 'historia']" --where "estado in ['Pending', 'Specified', 'In Progress']" --output table` para obtener tasks pendientes
 3. Si `--filter PATTERN` proporcionado, filtrar resultados por Epic/Feature path match
 4. Si `--max N`, tomar solo los primeros N tasks
 5. Mostrar tabla de tasks encontradas al usuario
