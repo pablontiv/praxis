@@ -34,17 +34,15 @@ Cada fase es independiente. `/praxis` detecta en qué fase está el input y dele
 ## Instalación
 
 ```bash
-git clone <repo-url> /opt/praxis
-cd /opt/praxis
+git clone https://github.com/pablontiv/praxis.git /home/praxis
+cd /home/praxis
 git config core.hooksPath .hooks
-```
 
-El hook `pre-push` sincroniza los skills a `~/.claude/skills/` en cada push. Después del primer push, los skills están disponibles globalmente en cualquier proyecto.
-
-```bash
-# Forzar sincronización inicial sin push
+# Sincronizar skills globalmente
 .hooks/pre-push
 ```
+
+Esto copia los skills a `~/.claude/skills/`, haciéndolos disponibles en cualquier proyecto de Claude Code. El hook `pre-push` también ejecuta esta sincronización automáticamente en cada push.
 
 ## Quick Start
 
