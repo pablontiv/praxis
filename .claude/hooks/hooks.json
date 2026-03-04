@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "test -f MAP.md && echo 'Praxis framework detected. Run /praxis for system state.' || true",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}
