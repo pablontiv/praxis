@@ -175,3 +175,4 @@ Antes de finalizar el Task, verificar mentalmente:
 - **Scope inflado**: Task que toca 5 archivos en 3 capas → Dividir en Tasks más pequeños
 - **Dependencia implícita**: "Después de configurar X..." → Declarar en "Estado inicial esperado"
 - **Sin fuente de verdad**: Agente no sabe qué archivos mirar → Siempre listar paths
+- **Vocabulario de investigación en slug**: "cat-5-link-validation" → Usar: "link-validation". Los slugs y títulos de Tasks deben usar vocabulario del dominio de implementación, no del proceso de investigación o clasificación interna. Si un término solo tiene sentido leyendo otro documento, no es autodescriptivo.

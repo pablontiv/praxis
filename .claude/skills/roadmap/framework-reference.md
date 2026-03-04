@@ -266,6 +266,16 @@ Toda Story y Task debe declarar explícitamente:
 
 Si falta uno → **riesgo de deriva**
 
+### 9.1 Naming: dominio de implementación, no de planificación
+
+Los nombres de artefactos (slugs de Tasks, nombres de Stories) deben usar vocabulario del **dominio de implementación**, no del proceso de investigación o clasificación interna.
+
+**Test**: ¿Un desarrollador que lee el nombre del archivo entiende qué hace sin consultar otro documento? Si la respuesta es no → el nombre usa vocabulario del dominio equivocado.
+
+Ejemplo:
+* ❌ `T001-cat-5-link-validation` — "cat 5" requiere leer el doc de investigación
+* ✅ `T001-link-validation` — autodescriptivo
+
 ---
 
 ## 10. Regla de corte por contexto (crítica)
