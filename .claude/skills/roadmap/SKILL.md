@@ -28,6 +28,7 @@ allowed-tools:
   - AskUserQuestion
   - ExitPlanMode
 ---
+<!-- No editar. Fuente: repo pablontiv/praxis -->
 
 # /roadmap — Framework de Planificación AI-Native
 
@@ -76,6 +77,7 @@ Si un campo no existe, usar los defaults indicados:
 | `done-statuses` | `['Completed', 'Obsolete']` | `<done-statuses>` |
 | `active-statuses` | `['Pending', 'Specified', 'In Progress']` | `<active-statuses>` |
 | `container-types` | `['feature', 'historia']` | `<container-types>` |
+| `story-close-verify` | `[]` | `<story-close-cmds>` |
 
 Expresiones helper (pre-computar una vez, reusar en todos los comandos):
 
@@ -485,14 +487,21 @@ Para cada task en orden:
    - Reportar resultado: INV1 HOLDS / INV2 VIOLATED
    - Si algún invariante se viola → **parar** (igual que AC fail)
 
-6. **Security Review** (selectivo, post-ACs, pre-commit):
+6. **Verificación de cierre de Story** (si es el último task de la Story):
+   - Determinar si es el último task: no quedan tasks pendientes en la misma Story (todas las demás están en `<done-statuses>`)
+   - Leer criterios semánticos (sección "Criterios de Aceptación" o "Después") del README.md de la Story padre
+   - Ejecutar `<story-close-cmds>` de `roadmap.local.md` (si existen)
+   - Reportar resultado por comando: ✅ PASS / ⚠️ FAIL
+   - **Warning informativo, no bloquea** el loop — el usuario decide si actuar
+
+7. **Security Review** (selectivo, post-ACs, pre-commit):
    - Aplica si: archivos modificados incluyen patterns sensibles (`**/secret*`, `**/*credentials*`, `**/.env*`, `**/auth*`, `**/crypto*`) O si el tipo de task lo requiere
    - Si aplica: ejecutar `/security-review` sobre archivos modificados
    - Si findings HIGH → **parar** (vulnerabilidad pre-push). Reportar findings y detener loop
    - Si findings MEDIUM → warning informativo, continuar
    - Si nada o no aplica → continuar silenciosamente
 
-7. **Commit+Push** (centralizado, NO delegado a skills hijos):
+8. **Commit+Push** (centralizado, NO delegado a skills hijos):
    - Identificar archivos modificados/creados por la implementación
    - `git add` archivos relevantes (específicos, no `git add .`)
    - `git commit` con mensaje en formato **conventional commits**: `type(scope): description`
@@ -500,9 +509,9 @@ Para cada task en orden:
      - El hook `.githooks/commit-msg` rechazará mensajes que no sigan el formato
    - `git push`
 
-8. **Marcar completado**: `TaskUpdate` → status: `completed`
+9. **Marcar completado**: `TaskUpdate` → status: `completed`
 
-9. **Resumen de iteración**:
+10. **Resumen de iteración**:
    ```
    📊 ITERACIÓN N/TOTAL
    ├─ Task: TXXX - título
@@ -512,7 +521,7 @@ Para cada task en orden:
    └─ Siguiente: TXXX+1 - título
    ```
 
-10. **Checkpoint Detection** (post-resumen, pre-confirmación):
+11. **Checkpoint Detection** (post-resumen, pre-confirmación):
    - Incrementar `checkpoint_task_count`
    - Triggers (OR — cualquiera activa el checkpoint):
      a) **Story context change**: siguiente task pertenece a otra Story (`current_story_path` diferente)
@@ -524,12 +533,12 @@ Para cada task en orden:
      3. Reportar findings (informativos, **no bloquean** el loop)
      4. Registrar nuevo checkpoint: `checkpoint_commit = HEAD`, `checkpoint_task_count = 0`
 
-11. **Confirmar**: `AskUserQuestion` con opciones:
+12. **Confirmar**: `AskUserQuestion` con opciones:
    - Sí, continuar (Recommended)
    - Saltar siguiente y continuar
    - Parar aquí
 
-12. **Reintentar bloqueados**: Al terminar la cola, si quedan tasks que fueron skipped por dependencias bloqueadas y ahora sus dependencias están Completadas → reintentar. Si ningún task progresó en la pasada → parar (deadlock de dependencias).
+13. **Reintentar bloqueados**: Al terminar la cola, si quedan tasks que fueron skipped por dependencias bloqueadas y ahora sus dependencias están Completadas → reintentar. Si ningún task progresó en la pasada → parar (deadlock de dependencias).
 
 #### Fase 4: Resumen Final
 

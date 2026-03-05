@@ -1,3 +1,4 @@
+<!-- No editar. Fuente: repo pablontiv/praxis -->
 # Marco de Trabajo para Desarrollo con Agentes AI
 
 **Versión:** 1.0
@@ -203,6 +204,8 @@ Ejemplo inválido:
 * "Listo para usar"
 * "Bien integrado"
 
+**Regla de cierre**: El último Task de una Story (o el Task que cierra la cadena de dependencias) DEBE incluir al menos un AC que verifique el **outcome de la Story** — el estado observable del sistema, no solo la existencia de artefactos. Si la Story dice "Después: metapac sync instala paquetes", el último Task debe tener un AC como `metapac sync --noconfirm` retorna exit 0, no solo `--syntax-check`.
+
 ### 6.2 Story
 
 Los criterios de una story son **de capacidad**.
@@ -234,6 +237,8 @@ Story: "Cluster bootstrappeado con Flux"
  └─ Task 3: Validar reconciliación
      └─ CA: drift corregido automáticamente
 ```
+
+**Nota**: El Task 3 cierra la Story verificando el outcome (drift corregido), no solo que los artefactos existen. Toda Story debe tener un equivalente — puede ser el último Task de la cadena, no necesita ser un Task separado.
 
 El **agente AI ejecuta tasks**.
 El **humano valida stories**.

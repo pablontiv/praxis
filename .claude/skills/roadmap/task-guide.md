@@ -1,3 +1,4 @@
+<!-- No editar. Fuente: repo pablontiv/praxis -->
 # Task Guide — Crear Task AI-Ready
 
 ## Workflow
@@ -164,6 +165,7 @@ Antes de finalizar el Task, verificar mentalmente:
 | 5 | Idempotente | ¿Se puede re-ejecutar sin daño? |
 | 6 | I/O explícitos | ¿Estado inicial, resultado y fuentes están declarados? |
 | 7 | Contribuye a | ¿Tiene campo "Contribuye a" que traza a un criterio de la Story padre? |
+| 8 | Cierre de Story | Si es el último task de la Story: ¿al menos un AC verifica el outcome de la Story (estado del sistema), no solo artefactos? |
 
 **Nota**: Estas condiciones se validan manualmente al revisar el Task. No hay hooks automáticos configurados actualmente.
 
@@ -176,3 +178,4 @@ Antes de finalizar el Task, verificar mentalmente:
 - **Dependencia implícita**: "Después de configurar X..." → Declarar en "Estado inicial esperado"
 - **Sin fuente de verdad**: Agente no sabe qué archivos mirar → Siempre listar paths
 - **Vocabulario de investigación en slug**: "cat-5-link-validation" → Usar: "link-validation". Los slugs y títulos de Tasks deben usar vocabulario del dominio de implementación, no del proceso de investigación o clasificación interna. Si un término solo tiene sentido leyendo otro documento, no es autodescriptivo.
+- **AC de solo-artefacto en task final**: `ansible-playbook --syntax-check` como único AC del último task → El AC debe probar ejecución real (ej: `ansible-playbook site.yml --check` que simula ejecución completa, no solo syntax)

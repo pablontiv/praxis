@@ -1,3 +1,4 @@
+<!-- No editar. Fuente: repo pablontiv/praxis -->
 # Story Guide — Crear Contrato Semántico
 
 ## Workflow
