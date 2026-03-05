@@ -26,7 +26,7 @@ Antes de evaluar el input, investigar el contexto real. Ejecutar en paralelo:
 - ¿Existe MAP.md? → discover inicializado
 - ¿Existe `.claude/rules/current-state.md`? → leer estado actual
 - ¿Existe `.claude/roadmap.local.md`? → roadmap configurado
-- rootline CLI disponible? (`command -v rootline`)
+- rootline CLI disponible? (`command -v rootline`) — **requerida por `/roadmap`**. Si no está y el input se delega a roadmap → informar: "rootline no está instalado. Instalar con: `curl -fsSL https://raw.githubusercontent.com/pablontiv/rootline/master/install.sh | bash`" → **PARAR, no delegar a roadmap sin rootline**
 - Investigaciones existentes (buscar `> Estado: Fase` en *.md)
 - Líneas activas en `lines/`, teorías en `theories/`
 

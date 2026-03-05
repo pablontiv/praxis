@@ -23,6 +23,10 @@ Framework portable de investigación estructurada y planificación para Claude C
 - **grounded-theory-analyst**: Análisis GT (Glaser & Strauss). Read-only. Para datos cualitativos sin estructura previa.
 - **sdd-validator**: Valida cadena de trazabilidad del roadmap (Epic→Feature→Story→Task).
 
+## Dependencias Externas
+
+- **`rootline` CLI**: Requerida por `/roadmap` (todos los subcomandos). Verificar con `command -v rootline` antes de ejecutar cualquier operación de roadmap. Si no está instalada → informar al usuario con instrucciones de instalación y **parar**. No simular rootline con lecturas manuales de archivos.
+
 ## Reglas de Edición
 
 - **Skills**: Siempre editar en `.claude/skills/` del repo. NUNCA editar `~/.claude/skills/` — el pre-push hook sobrescribe ese directorio con la versión del repo en cada push.

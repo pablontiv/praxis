@@ -31,6 +31,27 @@ allowed-tools:
 
 # /roadmap — Framework de Planificación AI-Native
 
+## Dependencias
+
+**Requerida: `rootline` CLI** — motor de base de datos sobre filesystem que este skill usa para validación, queries, auto-numbering, scaffolding y grafos de dependencia.
+
+Instalación:
+```bash
+curl -fsSL https://raw.githubusercontent.com/pablontiv/rootline/master/install.sh | bash
+```
+
+**Gate check obligatorio**: Al inicio de CUALQUIER subcomando (`pending`, `loop`, `plan`, o sin argumentos), ejecutar:
+```bash
+command -v rootline
+```
+Si no está disponible → informar al usuario:
+> `rootline` no está instalado. Es requerido por `/roadmap`.
+> Instalar con: `curl -fsSL https://raw.githubusercontent.com/pablontiv/rootline/master/install.sh | bash`
+
+**PARAR. No proceder manualmente ni intentar simular rootline con lecturas directas de archivos.**
+
+---
+
 ## Configuración del Proyecto
 
 El path raíz del roadmap se define en `.claude/roadmap.local.md` del proyecto:

@@ -44,6 +44,14 @@ git config core.hooksPath .hooks
 
 Esto copia los skills a `~/.claude/skills/`, haciéndolos disponibles en cualquier proyecto de Claude Code. El hook `pre-push` también ejecuta esta sincronización automáticamente en cada push.
 
+### Dependencias
+
+| Dependencia | Requerida por | Instalación |
+|-------------|---------------|-------------|
+| [`rootline`](https://github.com/pablontiv/rootline) | `/roadmap` (todos los subcomandos) | `curl -fsSL https://raw.githubusercontent.com/pablontiv/rootline/master/install.sh \| bash` |
+
+`rootline` es un motor de base de datos sobre filesystem que trata directorios como tablas, archivos como records, y YAML frontmatter como metadata. `/roadmap` lo usa para validación, queries, auto-numbering, scaffolding y grafos de dependencia.
+
 ## Quick Start
 
 ```bash
@@ -125,7 +133,7 @@ Descomposición jerárquica: Epic > Feature > Story > Task.
 | `loop` | Ejecuta tasks secuencialmente |
 | `plan` | Genera plan desde contexto de conversación |
 
-Requiere `rootline` CLI para validación y materialización.
+Requiere [`rootline` CLI](#dependencias) — no opera sin ella.
 
 ### /sessions — Historial
 
