@@ -17,6 +17,10 @@ Ejecutar Tasks pendientes en loop con confirmacion entre cada uno.
 3. Si `--filter PATTERN` proporcionado, filtrar resultados por Epic/Feature path match
 4. Si `--max N`, tomar solo los primeros N tasks
 5. Mostrar tabla de tasks encontradas al usuario
+6. **Si 0 tasks encontradas** → informar:
+   "No hay tasks materializadas en `<roadmap-root>/`.
+   Ejecutar `/roadmap plan` para crear los archivos de task primero."
+   → **STOP**. NO implementar desde el contexto de conversación.
 
 ## Fase 2: TodoList Setup
 
