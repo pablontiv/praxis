@@ -182,5 +182,6 @@ Define dónde vive la jerarquía del roadmap. Usado por `/roadmap` y `sdd-valida
 ├── rules/                ← praxis-pipeline.md
 └── hooks/                ← SessionStart hook
 .hooks/
-└── pre-push              ← sincroniza skills globalmente
+├── pre-push              ← sincroniza skills en push
+└── post-merge            ← sincroniza skills en pull
 ```

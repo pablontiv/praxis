@@ -1,5 +1,5 @@
 #!/bin/bash
-# Sync praxis skills to ~/.claude/skills/ on every push
+# Sync praxis skills to ~/.claude/skills/ after every pull
 
 [ -z "$HOME" ] && HOME=$(eval echo ~)
 
