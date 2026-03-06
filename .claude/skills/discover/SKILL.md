@@ -1,31 +1,22 @@
 ---
 name: discover
 description: |
-  Structured R&D framework for open-ended exploration through lines of inquiry.
-  Supports Plan-Act-Observe-Reflect cycles, grounded theory, anti-presupposition
-  process, and knowledge connections. Manages the full lifecycle: create lines,
-  document cycles, reflect on progress, pause/resume, close with theory extraction.
-
+  Use for open-ended exploration when the user doesn't have a specific thesis
+  to test — they want to learn, explore, or map out a new domain. Manages
+  lines of inquiry with Plan-Act-Observe-Reflect (PAOR) cycles, grounded
+  theory analysis, and knowledge connections across topics.
   Subcommands: init, new-line, cycle, reflect, theory, status, update-map,
-  interlink, review-patterns, research, resume. Use @file to analyze an external file.
-  Without arguments shows system status.
-
-  Use this skill whenever the user wants to explore a topic systematically,
-  track what they're learning across sessions, open or manage lines of inquiry,
-  document research cycles (plan/act/observe/reflect), decide whether to continue
-  or pause an investigation, document emergent patterns or theories, resume a
-  paused line, analyze an external file to classify it into the research flow,
-  or check research project status.
-
-  Trigger phrases (any language): "nueva línea", "new line", "descubrir",
-  "discover", "ciclo", "cycle", "reflexión", "reflect", "teoría", "theory",
-  "estado", "status", "init", "actualizar mapa", "interconectar",
-  "revisar patrones", "investigar", "retomar", "reanudar", "resume",
-  "explorar", "explore", "@file".
-
-  DO NOT use for: formal hypothesis falsification with 5-phase structure
-  (that's /hypothesize), breaking work into epics/stories/tasks (that's /roadmap),
-  or general code review/refactoring (no skill needed).
+  interlink, review-patterns, research, resume. @file analyzes external files.
+  Trigger when the user wants to: open a new line of investigation on a topic
+  they're curious about, document what they observed or learned, reflect on
+  patterns across research sessions, extract a theory from accumulated evidence,
+  check status of active explorations, resume a paused line, or systematically
+  explore a domain before forming concrete hypotheses.
+  Trigger phrases: "nueva linea", "explorar", "discover", "ciclo PAOR",
+  "reflexion", "teoria", "status", "init", "interconectar", "retomar", "@file".
+  DO NOT use when the user has specific claims to evaluate with evidence
+  (that's hypothesize), wants to decompose work into tasks (that's roadmap),
+  or needs direct coding help (no skill needed).
 user-invocable: true
 argument-hint: "<subcommand> [args] | @file — subcommands: init, new-line, cycle, reflect, theory, status, update-map, interlink, review-patterns, research, resume"
 ---

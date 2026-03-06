@@ -1,87 +1,119 @@
 ---
 name: praxis
 description: |
-  Proxy inteligente para el flujo discover → hypothesize → roadmap.
-  Hace reconocimiento del entorno, detecta fase del input, y delega al skill correcto.
-  Reinvocable sobre el mismo documento en cualquier etapa.
-  Use when the user says "praxis", "procesar", "evaluar", "siguiente paso",
-  "en qué va", "continuar", or provides a file/topic to process through the flow.
+  Intelligent router for the research-to-implementation pipeline. Classifies
+  any input (file, topic, or empty) and delegates to the right skill: discover
+  for open exploration, hypothesize for evidence-based evaluation, or roadmap
+  for project decomposition. Use this skill when the user wants to process a
+  document or topic through a structured workflow, check project status, resume
+  previous work, or figure out what to do next. Trigger on: "praxis", "procesar",
+  "evaluar", "siguiente paso", "en que va", "continuar", "retomar", "que sigue",
+  or when the user provides a file or topic and it's unclear which specific skill
+  applies. Also use when the user asks for a general status overview of their
+  research/planning state. Do NOT use for direct coding tasks (refactoring, tests,
+  bug fixes, config) — those don't need skill routing.
 user-invocable: true
-argument-hint: "[archivo.md] | [tema] | (vacío = auto-detect)"
+argument-hint: "[archivo.md] | [tema] | (vacio = auto-detect)"
 ---
 
 # /praxis — Proxy del Flujo
 
-## Paso 1: Reconocimiento del entorno
+## Paso 0: Clasificar el input
 
-Antes de evaluar el input, investigar el contexto real. Ejecutar en paralelo:
+Antes de cualquier I/O, determinar el tipo de input por inspeccion textual:
 
-### Repo y proyecto
-- Estructura del proyecto (`Glob: **/*.{py,ts,js,go,rs,tf,yaml}` — solo top-level patterns)
-- Dependencias (package.json, Cargo.toml, requirements.txt, go.mod, etc.)
-- README principal — leer para entender el dominio
-- Branch actual y estado de git
+| Condicion | Tipo |
+|-----------|------|
+| `$ARGUMENTS` vacio | EMPTY |
+| `$ARGUMENTS` termina en `.md` y el archivo existe | FILE |
+| `$ARGUMENTS` empieza con `@` y el archivo (sin `@`) existe | FILE (strip `@`) |
+| Cualquier otro caso | TOPIC |
 
-### Estado del framework
-- ¿Existe MAP.md? → discover inicializado
-- ¿Existe `.claude/rules/current-state.md`? → leer estado actual
-- ¿Existe `.claude/roadmap.local.md`? → roadmap configurado
-- rootline CLI disponible? (`command -v rootline`) — **requerida por `/roadmap`**. Si no está y el input se delega a roadmap → informar: "rootline no está instalado. Instalar con: `curl -fsSL https://raw.githubusercontent.com/pablontiv/rootline/master/install.sh | bash`" → **PARAR, no delegar a roadmap sin rootline**
-- Investigaciones existentes (buscar `> Estado: Fase` en *.md)
-- Líneas activas en `lines/`, teorías en `theories/`
+## Paso 1: Reconocimiento por niveles
 
-### Online (solo si el input involucra un tema nuevo)
-- Buscar estado del arte, documentación oficial, alternativas
-- Anclar en evidencia externa antes de proceder
+El reconocimiento es proporcional a la ambiguedad del input. No escanear mas de lo necesario.
 
-## Paso 2: Evaluar el input
+### Tier 0 — FILE con marcadores (fast-path)
 
-### Si $ARGUMENTS es un archivo .md que existe:
+Cuando el input es FILE, leer el archivo y buscar marcadores conocidos:
 
-Leer el archivo y detectar fase por marcadores:
-
-| Marcador | Fase | Acción |
+| Marcador | Fase | Accion |
 |----------|------|--------|
-| `> Estado: Fase N` | Investigación en curso | → `Skill: hypothesize $ARGUMENTS` |
-| QUESTION.md / FIELD-LOG.md markers | Línea discover activa | → `Skill: discover cycle [nombre-línea]` |
-| Frontmatter con `tipo:`, `estado:`, `epic:` | Artefacto roadmap | → `Skill: roadmap pending` o `roadmap loop` |
-| Ningún marcador conocido | Archivo externo nuevo | → Clasificar con señales (ver Paso 3) |
+| `> Estado: Fase N` | Investigacion hypothesize en curso | -> `Skill: hypothesize $ARGUMENTS` |
+| Template markers de QUESTION.md / FIELD-LOG.md | Linea discover activa | -> `Skill: discover cycle [nombre-linea]` |
+| Frontmatter con `tipo:`, `estado:`, `epic:` | Artefacto roadmap | Verificar rootline (`command -v rootline`). Si OK -> `Skill: roadmap pending`. Si no -> informar instalacion y PARAR. |
 
-### Si $ARGUMENTS es un tema corto (1-5 palabras):
+Si se detecta un marcador: mostrar al usuario que se detecto, que skill se invoca, y delegar. **No escanear repo, no revisar estado del framework.** El marcador es suficiente.
 
-Verificar si ya existe trabajo sobre este tema:
+Si NO se detecta ningun marcador: el archivo es externo o desconocido. Caer a Tier 1 para obtener contexto antes de clasificar.
+
+### Tier 1 — Estado del framework (lightweight)
+
+Aplica cuando: input es EMPTY, TOPIC, o FILE sin marcadores.
+
+Leer en paralelo (solo lo que existe):
+- `.claude/rules/current-state.md` — estado actual
+- Existencia de `MAP.md` — discover inicializado?
+- Contenido de `lines/` — lineas activas (nombres y QUESTION.md)
+- Contenido de `theories/` — teorias existentes
+- Existencia de `.claude/roadmap.local.md` — roadmap configurado?
+
+#### Si EMPTY:
+Presentar estado del framework:
+- Lineas activas y su fase
+- Investigaciones en curso (buscar `> Estado: Fase` en *.md del root)
+- Roadmap: configurado? items pendientes?
+- Sugerir siguiente accion basada en el estado
+
+No delegar. Responder directamente.
+
+#### Si TOPIC:
+Buscar trabajo existente sobre el tema:
 1. Buscar en `lines/` carpeta con nombre similar
 2. Buscar en `theories/` documento relacionado
 3. Buscar investigaciones (`> Estado: Fase`) sobre el tema
-4. Si existe → preguntar al usuario: ¿continuar existente o crear nuevo?
-5. Si no existe → Clasificar como idea nueva (ver Paso 3)
+4. Si existe -> preguntar al usuario: continuar existente o crear nuevo?
+5. Si no existe -> caer a Tier 2
 
-### Si $ARGUMENTS está vacío:
+#### Si FILE sin marcadores:
+Caer a Tier 2 para clasificacion completa.
 
-Leer `.claude/rules/current-state.md` y presentar:
-- Estado actual del framework
-- Líneas activas y su fase
-- Investigaciones en curso y su fase
-- Sugerir siguiente acción basada en el estado
+### Tier 2 — Reconocimiento completo (solo cuando necesario)
 
-## Paso 3: Clasificar y delegar
+Aplica cuando: TOPIC sin trabajo previo, o FILE sin marcadores.
 
-Para archivos nuevos o temas nuevos, clasificar usando las señales de intake
+Ejecutar en paralelo:
+
+**Repo y proyecto:**
+- Estructura del proyecto (Glob: top-level patterns)
+- Dependencias (package.json, Cargo.toml, requirements.txt, etc.)
+- README principal
+- Branch actual y estado de git
+
+**Online (solo si el input involucra un tema nuevo):**
+- Buscar estado del arte, documentacion oficial, alternativas
+- Anclar en evidencia externa antes de proceder
+
+Luego proceder a Paso 2 con el contexto completo.
+
+## Paso 2: Clasificar y delegar
+
+Para archivos sin marcadores o temas nuevos, clasificar usando senales de intake
 (structure, assertions, evidence, actionability, domain, completeness).
 
 Mapear a skill y **ejecutar directamente** (no solo sugerir):
 
-| Clasificación | Skill invocado | Contexto que recibe |
+| Clasificacion | Skill invocado | Contexto que recibe |
 |---------------|---------------|---------------------|
-| Idea exploratoria (bajo en assertions, sin evidencia) | `Skill: discover new-line [tema]` | Reconocimiento del paso 1 |
-| Claims sin validar (alto en assertions, sin/poca evidencia) | `Skill: hypothesize [contenido]` | Reconocimiento + búsqueda online del paso 1 |
-| Investigación con evidencia | `Skill: hypothesize [archivo]` | Reconocimiento del paso 1 |
+| Idea exploratoria (bajo en assertions, sin evidencia) | `Skill: discover new-line [tema]` | Reconocimiento del Tier 1/2 |
+| Claims sin validar (alto en assertions, sin/poca evidencia) | `Skill: hypothesize [contenido]` | Reconocimiento + busqueda online |
+| Investigacion con evidencia | `Skill: hypothesize [archivo]` | Reconocimiento del Tier 1/2 |
 | Specs/requirements listos para descomponer | `Skill: roadmap [contenido]` | Reconocimiento + docs del repo |
-| Código/datos | Sugerir attach a línea existente | — |
+| Codigo/datos | Sugerir attach a linea existente | — |
 
 Antes de delegar, mostrar al usuario:
-- Qué se detectó (fase, clasificación)
-- Qué skill se va a invocar y por qué
-- El contexto del reconocimiento (resumen)
+- Que se detecto (fase, clasificacion)
+- Que skill se va a invocar y por que
+- Resumen del contexto relevante (proporcional al tier usado)
 
-Preguntar confirmación solo si la clasificación tiene confianza < alta.
+Preguntar confirmacion solo si la clasificacion tiene confianza < alta.
