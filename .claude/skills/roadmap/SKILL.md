@@ -177,6 +177,7 @@ Después de crear un artefacto, actualizar la tabla en el README padre:
 
 | Comando | Cuándo usarlo en el skill |
 |---------|--------------------------|
+| `rootline init <path>` | Bootstrap: inferir .stem schema de archivos existentes. `--dry-run` para preview |
 | `rootline validate <path>` | Después de crear/editar archivos .md — verificar contra .stem |
 | `rootline fix <path>` | Cuando validate falla — corregir automáticamente |
 | `rootline describe <dir> --field schema.id.next` | Auto-numbering: obtener próximo ID en cualquier nivel |

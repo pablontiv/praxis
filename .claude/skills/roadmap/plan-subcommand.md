@@ -41,20 +41,72 @@ Estos archivos DESCRIBEN el trabajo a realizar — NO lo ejecutan.
 NUNCA escribir codigo, scripts, configs, hooks, ni ningun archivo fuera de `<roadmap-root>/`.
 La implementacion ocurre despues via `/roadmap loop`.
 
-9. Para cada nivel de la jerarquia (Epic, Feature, Story, Task), crear archivos .md usando los templates de:
-   - [epic-guide.md](epic-guide.md) para READMEs de Epic y Feature
-   - [story-guide.md](story-guide.md) para READMEs de Story
-   - [task-guide.md](task-guide.md) para archivos de Task
-10. Despues de cada Write, ejecutar `rootline validate <path>`
-11. Si falla, `rootline fix <path>` como fallback
-12. Actualizar tablas en READMEs padre (cascading links)
-13. **Validacion batch final**: Ejecutar `rootline validate --all <roadmap-root>/`
-   - Si hay errores → `rootline fix --all <roadmap-root>/`
-   - Reportar resultado final al usuario
-14. **Commit+Push** archivos de planificacion creados:
-   - `git add` todos los archivos .md creados (especificos, no `git add .`)
-   - `git commit` con mensaje: `chore(roadmap): create {descripcion breve} planning docs`
-   - `git push`
+### Paso 1: Bootstrap .stem raiz
+
+Si `<roadmap-root>/` no tiene `.stem`:
+- **Con archivos .md existentes** → `rootline init <roadmap-root>/` infiere el schema
+- **Greenfield (sin archivos)** → crear un unico `.stem` raiz con el schema completo
+  (id sequence, tipo enum, estado, aggregate, derive, links, validate).
+  Usar como referencia un proyecto rootline existente del ecosistema del usuario.
+
+El `.stem` raiz es el **unico** que se crea manualmente. Los `.stem` en subdirectorios
+(E→F→S→T) solo redefinen `id.prefix` para el nivel inferior, con contenido minimo:
+
+```yaml
+version: 2
+schema:
+    id:
+        type: sequence
+        prefix: X  # F, S, o T segun nivel
+        digits: N  # 2 para F, 3 para S y T
+```
+
+### Paso 2: Descubrir schema con rootline describe
+
+Antes de crear archivos en un directorio, ejecutar:
+
+```bash
+rootline describe <directorio>/
+```
+
+Esto muestra el schema efectivo (merged de `.stem` raiz + padres), incluyendo campos
+requeridos, tipos, y `schema.id.next` (proximo ID disponible). Usar esta informacion
+para llenar el frontmatter correctamente — no adivinar campos ni valores.
+
+### Paso 3: Scaffolding con rootline new
+
+Para cada artefacto (README de Epic/Feature/Story, archivo de Task):
+
+```bash
+rootline new <path-al-archivo.md>
+```
+
+Esto genera el frontmatter correcto segun el `.stem` efectivo del directorio destino.
+Luego editar el contenido (body del .md) con los templates de:
+- [epic-guide.md](epic-guide.md) para READMEs de Epic y Feature
+- [story-guide.md](story-guide.md) para READMEs de Story
+- [task-guide.md](task-guide.md) para archivos de Task
+
+### Paso 4: Validar
+
+Despues de cada Write: `rootline validate <path>`. Si falla → `rootline fix <path>`.
+
+### Paso 5: Cascading links
+
+Actualizar tablas en READMEs padre (ver seccion "Cascading Links" en SKILL.md).
+
+### Paso 6: Validacion batch final
+
+```bash
+rootline validate --all <roadmap-root>/
+```
+Si hay errores → `rootline fix --all <roadmap-root>/`. Reportar resultado al usuario.
+
+### Paso 7: Commit+Push
+
+- `git add` archivos .md y .stem creados (especificos, no `git add .`)
+- `git commit` con mensaje: `chore(roadmap): create {descripcion breve} planning docs`
+- `git push`
 
 **STOP OBLIGATORIO**: Despues de commit+push, DETENERSE COMPLETAMENTE.
 Informar: "Archivos de planificacion creados. Ejecutar `/roadmap loop` cuando este listo
