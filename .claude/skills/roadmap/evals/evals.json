@@ -36,6 +36,18 @@
         {"name": "epic-substance-test", "check": "Every Epic has >= 6 Tasks total. If an Epic has < 3 Features, each Feature has >= 2 Stories. No thin Epics (2 Features × 1 Story each)."},
         {"name": "postconditions-observable", "check": "Every Epic postcondition includes a verification command or observable check, not vague statements like 'produces a valid PDF'"}
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "/roadmap plan\n\nContexto de la conversacion: acabamos de diseñar un plan para auto-sincronizar un repo con origin. El plan aprobado es:\n\nT1: Crear .githooks/post-merge hook\n- Script bash que tras git pull con cambios: sincroniza skills (cp -r), rebuild binario (go build)\n- chmod +x\n\nT2: Crear systemd user units\n- rootline-sync.service: Type=oneshot, ExecStart=git pull --ff-only\n- rootline-sync.timer: OnBootSec=1min, OnUnitActiveSec=5min\n\nT3: Activar y verificar\n- git config core.hooksPath .githooks\n- systemctl --user enable --now rootline-sync.timer\n- Verificar con systemctl y journalctl\n\nYa existe .claude/roadmap.local.md con roadmap-root: docs/epics.\nYa existe docs/epics/E05-repo-best-practices/ con F01-F03.\nrootline está instalado.\n\nEl usuario aprobó este plan. Ahora materialízalo como archivos del roadmap.\n\nIMPORTANTE: Este test verifica que /roadmap plan SOLO crea archivos .md del roadmap (Feature READMEs, Story READMEs, Task .md files) dentro de docs/epics/. NO debe crear .githooks/post-merge, NO debe crear archivos en ~/.config/systemd/, NO debe escribir scripts bash, NO debe ejecutar systemctl. Solo documentos de planificación.",
+      "expected_output": "Only roadmap .md files created inside docs/epics/, no implementation files written",
+      "files": [],
+      "assertions": [
+        {"name": "no-implementation-files", "check": "Does NOT create .githooks/post-merge, systemd unit files, bash scripts, or any file outside docs/epics/"},
+        {"name": "creates-roadmap-docs", "check": "Creates Feature README, Story README, and Task .md files inside docs/epics/"},
+        {"name": "tasks-describe-not-execute", "check": "Task .md files DESCRIBE what to build (post-merge hook, systemd units) but do NOT contain the actual implementation code as file output"},
+        {"name": "stops-after-materialization", "check": "After creating roadmap docs, stops and tells user to run /roadmap loop for implementation. Does NOT start implementing."}
+      ]
     }
   ]
 }

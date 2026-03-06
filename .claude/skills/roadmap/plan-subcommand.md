@@ -35,7 +35,13 @@ Tomar el plan de la conversacion actual y descomponerlo en estructura de roadmap
 
 ## Fase 3: Materializacion (post-aprobacion)
 
-9. Para cada artefacto, crear archivos .md usando los templates de:
+**MATERIALIZAR ≠ IMPLEMENTAR.** En esta fase se crean SOLAMENTE archivos `.md` del roadmap
+dentro de `<roadmap-root>/` (Feature READMEs, Story READMEs, Task .md files).
+Estos archivos DESCRIBEN el trabajo a realizar — NO lo ejecutan.
+NUNCA escribir codigo, scripts, configs, hooks, ni ningun archivo fuera de `<roadmap-root>/`.
+La implementacion ocurre despues via `/roadmap loop`.
+
+9. Para cada nivel de la jerarquia (Epic, Feature, Story, Task), crear archivos .md usando los templates de:
    - [epic-guide.md](epic-guide.md) para READMEs de Epic y Feature
    - [story-guide.md](story-guide.md) para READMEs de Story
    - [task-guide.md](task-guide.md) para archivos de Task
@@ -54,3 +60,4 @@ Tomar el plan de la conversacion actual y descomponerlo en estructura de roadmap
 Informar: "Archivos de planificacion creados. Ejecutar `/roadmap loop` cuando este listo
 para implementar."
 NO continuar. NO invocar `/roadmap loop`. NO leer tasks para implementar.
+NO escribir archivos de implementacion (codigo, scripts, configs, hooks, units, etc.).
