@@ -5,8 +5,8 @@ Generar **arbol de decision** que muestre ramas ejecutables, cadenas de dependen
 ## Paso 1: Recopilar datos (3 comandos en paralelo)
 
 Ejecutar en paralelo:
-1. `rootline tree <roadmap-root>/ --where "<where-not-done>" --output json` — arbol jerarquico con paths, estados y conteos completed/total (~2 KB, reemplaza stats + query)
-2. `rootline graph <roadmap-root>/ --where "<where-not-done>" --output json` — grafo de dependencias entre pendientes (~3 KB)
+1. `rootline tree <roadmap-root>/ --where "<where-leaf> and <where-not-done>" --output json` — arbol jerarquico con paths, estados y conteos completed/total (~2 KB, reemplaza stats + query)
+2. `rootline graph <roadmap-root>/ --where "<where-leaf> and <where-not-done>" --output json` — grafo de dependencias entre pendientes (~3 KB)
 3. `git log -5 --format='%h %s'` — ultimos commits para proximidad
 
 **IMPORTANTE**: Despues de Paso 1, NO ejecutar mas comandos bash. Los Pasos 2-5 procesan los JSONs obtenidos.

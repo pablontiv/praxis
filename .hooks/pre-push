@@ -1,12 +1,15 @@
 #!/bin/bash
-# Sync praxis skills to ~/.claude/skills/ on every push
+# Sync all praxis .claude components to ~/.claude/ on every push
 
 [ -z "$HOME" ] && HOME=$(eval echo ~)
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
-SKILLS_SRC="$REPO_ROOT/.claude/skills"
-SKILLS_DEST="$HOME/.claude/skills"
+CLAUDE_SRC="$REPO_ROOT/.claude"
+CLAUDE_DEST="$HOME/.claude"
 
+# Sync skills
+SKILLS_SRC="$CLAUDE_SRC/skills"
+SKILLS_DEST="$CLAUDE_DEST/skills"
 mkdir -p "$SKILLS_DEST"
 for skill_dir in "$SKILLS_SRC"/*/; do
   [ -d "$skill_dir" ] || continue
@@ -16,5 +19,23 @@ for skill_dir in "$SKILLS_SRC"/*/; do
   cp -r "$skill_dir" "$SKILLS_DEST/$skill_name"
 done
 echo "praxis: synced skills → $SKILLS_DEST"
+
+# Sync agents
+AGENTS_SRC="$CLAUDE_SRC/agents"
+AGENTS_DEST="$CLAUDE_DEST/agents"
+if [ -d "$AGENTS_SRC" ]; then
+  mkdir -p "$AGENTS_DEST"
+  cp "$AGENTS_SRC"/*.md "$AGENTS_DEST/" 2>/dev/null
+  echo "praxis: synced agents → $AGENTS_DEST"
+fi
+
+# Sync rules
+RULES_SRC="$CLAUDE_SRC/rules"
+RULES_DEST="$CLAUDE_DEST/rules"
+if [ -d "$RULES_SRC" ]; then
+  mkdir -p "$RULES_DEST"
+  cp "$RULES_SRC"/*.md "$RULES_DEST/" 2>/dev/null
+  echo "praxis: synced rules → $RULES_DEST"
+fi
 
 exit 0
