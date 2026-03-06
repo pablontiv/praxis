@@ -84,6 +84,9 @@ Siempre mostrar PRIMERO el estado visual antes de proponer acción:
 PROGRESO — [Título del documento (línea 1 sin #)]
 ═══════════════════════════════════════════════════
 
+H1: [resumen de una línea de la hipótesis principal]
+Constraints clave: [C1-Cn más relevantes para la fase actual, max 3]
+
 Fases:  [barra] N/5 completadas
 Claims: [barra] N/M resueltos
 
@@ -146,7 +149,14 @@ CRITERIOS DE DECISIÓN
    └─ SÍ → Resolver bloqueante primero
 
 SUGERENCIA: Investigar [CAP-NN] — [razón]
-¿Proceder con esta CAP o elegir otra?
+
+SIGUIENTE PASO: Loop PAOR (Plan → Act → Observe → Reflect)
+├─ PLAN: formular queries de búsqueda con anti-presuposiciones
+├─ ACT: investigar empíricamente contra constraints
+├─ OBSERVE: clasificar evidencia (confirma/refuta/parcial)
+└─ REFLECT: actualizar matrices + evaluar impacto en H1
+
+¿Proceder con [CAP-NN] o elegir otra?
 ```
 
 → Una vez seleccionada, ejecutar loop PAOR (ver empirical-loop.md).

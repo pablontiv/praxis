@@ -1,11 +1,18 @@
 ---
 name: hypothesize
 description: |
-  Investigación estructurada de 5 fases con trazabilidad lógica.
-  Detecta automáticamente el estado del documento y actúa en consecuencia.
+  Investigación estructurada de 5 fases con trazabilidad lógica para falsear
+  claims, evaluar propuestas técnicas, y decidir Go/No-Go con evidencia.
+  Tres modos: (1) CREAR nueva investigación desde un tema, (2) DIRECTO
+  analizar claims/propuestas inline, (3) SEGUIMIENTO continuar un documento
+  de investigación .md existente.
   Use when the user says "formular hipótesis", "hypothesize", "falsación",
-  "investigación estructurada", "5 fases", "Go/No-Go", or provides
-  a research document to continue.
+  "falsear", "investigación estructurada", "5 fases", "Go/No-Go",
+  "evaluar si vale la pena", "analizar claims", "decidir con evidencia".
+  Also trigger when the user presents a proposal with claims to evaluate
+  before committing resources, questions whether a migration/rewrite/adoption
+  is worth it, references an existing research document (.md) to continue,
+  or needs structured evidence to support a build-vs-buy decision.
 user-invocable: true
 argument-hint: "[tema-corto] o [archivo-existente.md] o [contenido con claims a falsar]"
 ---
@@ -146,6 +153,7 @@ Una fila por CAP. Poblar con lo conocido hasta el momento.
 
 ---
 ## Fase 1: Idea → Tesis
+### Anti-presuposiciones — si aplica
 ### Proposición central (P)
 ### Axiomas del entorno [ESTADO]
 ### Premisas de diseño [ESTADO]
