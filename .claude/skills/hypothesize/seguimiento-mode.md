@@ -7,7 +7,10 @@ El archivo indicado es una investigación existente. Leer el documento, detectar
 Seguir la guía de parseo en [parsing-reference.md](parsing-reference.md):
 
 1. **Leer el documento completo**
-2. **Parsear estado** (header, fases, Matriz Premisa-Evidencia, CAPs, trazabilidad)
+2. **Parsear estado** — frontmatter first, inline header as fallback:
+   - If the document has YAML frontmatter with `fase_actual`, use it as the authoritative phase number
+   - If no frontmatter exists (backwards compatibility), parse `> Estado: Fase N` from the body as before
+   - Both methods must produce the same result; if they disagree, warn and prefer frontmatter
 3. **Renderizar progreso** (siempre mostrar primero)
 4. **Routing automático** — la primera ruta que coincida:
 
@@ -36,5 +39,7 @@ Después de investigar cada CAP, SIEMPRE:
 1. Actualizar fila en Matriz Premisa-Evidencia
 2. Actualizar fila en Matriz de trazabilidad
 3. Actualizar header `> Estado:` del documento
-4. Si ❌ false → evaluar impacto en H1
-5. Mostrar reflexión post-CAP con tendencia Go/Pivot/Stop
+4. Actualizar frontmatter `estado` and `fase_actual` to match the inline header
+5. Si ❌ false → evaluar impacto en H1
+6. Mostrar reflexión post-CAP con tendencia Go/Pivot/Stop
+7. If rootline is available, run `rootline validate [file]` to verify frontmatter integrity

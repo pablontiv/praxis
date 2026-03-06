@@ -49,6 +49,57 @@ Parse `$ARGUMENTS` to determine subcommand. First token = subcommand, rest = arg
 
 ---
 
+## Dependencia: rootline CLI
+
+**Requerida para queries, validacion y grafos**. NO requerida para creating/editing markdown files directly.
+
+Instalacion:
+```bash
+curl -fsSL https://raw.githubusercontent.com/pablontiv/rootline/master/install.sh | bash
+```
+
+**Gate check**: Antes de ejecutar comandos `rootline`, verificar:
+```bash
+command -v rootline
+```
+Si no esta disponible -> informar al usuario:
+> `rootline` no esta instalado. Es requerido para queries y validacion en discover.
+> Instalar con: `curl -fsSL https://raw.githubusercontent.com/pablontiv/rootline/master/install.sh | bash`
+
+**Alcance del gate**: Solo bloquea operaciones que ejecutan rootline (validate, query, tree, graph). La creacion y edicion directa de archivos .md (new-line, cycle, theory) puede proceder sin rootline — solo las validaciones post-creacion y las queries requieren rootline.
+
+---
+
+## Rootline Integration
+
+Rootline is the data layer for discover. It reads YAML frontmatter from .md files, validates against `.stem` schemas, and supports structured queries.
+
+### Key concepts
+
+1. **`.stem` schemas** exist in each discover directory: `lines/.stem`, `closed/.stem`, `paused/.stem`, `theories/.stem`, `backlog/.stem`, `intake/.stem`. These define required frontmatter fields per directory.
+
+2. **`isIndex` field**: Rootline's built-in field distinguishes index records (README.md) from content records. Use `isIndex == false` to query only content documents.
+
+3. **YAML frontmatter**: All documents have frontmatter with at minimum a `tipo` field:
+   - `tipo: question` — QUESTION.md files in lines/paused/
+   - `tipo: field-log` — FIELD-LOG.md files
+   - `tipo: closure` — CLOSURE.md files in closed/
+   - `tipo: theory` — theory documents in theories/
+   - `tipo: backlog-question` — backlog entries
+   - Other fields: `estado`, `fecha_inicio`, `linea`, `ciclos_registrados`, `confianza`, etc.
+
+4. **Use rootline commands instead of manual grep/file scanning**:
+   - `rootline query <path> --where "expr" --output table` — search records by frontmatter
+   - `rootline tree <path> --output table|json` — hierarchical view with counts
+   - `rootline validate <path>` — check document against .stem schema
+   - `rootline validate --all <path>` — validate all documents in a directory
+   - `rootline graph <path> --format mermaid` — connection/link graph
+   - `rootline graph <path> --check` — validate wikilinks and detect broken/orphaned links
+
+5. **current-state.md and connections.md are kept** — they serve as rules files loaded into Claude's context. Rootline queries supplement but don't replace context injection.
+
+---
+
 ## Subcommand: init
 
 Initialize an R&D project in the current directory.
@@ -182,7 +233,12 @@ Create a new line of inquiry with anti-presupposition process.
    See [anti-presupposition.md](anti-presupposition.md) — "In new-line" section (full process).
    Document results in QUESTION.md: presuppositions, alternatives, reformulated question.
 
-5. **Update system**: Update `.claude/rules/current-state.md`. MAP.md update deferred to `/discover update-map`.
+5. **Validate with rootline** (if available):
+   ```bash
+   rootline validate lines/[name]/QUESTION.md lines/[name]/FIELD-LOG.md
+   ```
+
+6. **Update system**: Update `.claude/rules/current-state.md`. MAP.md update deferred to `/discover update-map`.
 
 ---
 
@@ -241,7 +297,12 @@ Structured reflection to evaluate continue/pause/close a line.
 4. **Execute**:
    - CONTINUE → ask intention for next cycle
    - PAUSE → move folder to `paused/`, update state. To resume later: `/discover resume [name]`
-   - CLOSE → **automatically run review-patterns first**, then create CLOSURE.md from [template](templates/CLOSURE.md), move to `closed/`, update state. Check if any `intake/` files referenced by this line should graduate to `/hypothesize` or `/roadmap` — suggest next step for each.
+   - CLOSE → **automatically run review-patterns first**, then create CLOSURE.md from [template](templates/CLOSURE.md), move to `closed/`, update state. Then validate with rootline (if available):
+     ```bash
+     rootline validate closed/[name]/CLOSURE.md
+     rootline validate --all closed/[name]/
+     ```
+     Check if any `intake/` files referenced by this line should graduate to `/hypothesize` or `/roadmap` — suggest next step for each.
    - FORK → run new-line, document connection
 
 **Validations**: Line must exist. Don't allow closing without at least 2 cycles (unless explicit).
@@ -280,7 +341,22 @@ Show system state. Read-only.
 
 ### Process
 
-1. **Read**: `.claude/rules/current-state.md` + `MAP.md`
+1. **Read state**: `.claude/rules/current-state.md` for context injection, then query rootline for live data:
+   ```bash
+   # Active lines
+   rootline query lines/ --where 'tipo == "question"' --output table
+   # Paused lines
+   rootline query paused/ --where 'tipo == "question"' --output table
+   # Closed lines
+   rootline query closed/ --where 'tipo == "closure"' --output table
+   # Theories
+   rootline query theories/ --output table
+   # Backlog count
+   rootline query backlog/ --count
+   # Full tree view
+   rootline tree lines/ --output table
+   ```
+   If rootline unavailable, fall back to reading `.claude/rules/current-state.md` + `MAP.md` manually.
 
 2. **Display**:
    ```
@@ -319,11 +395,20 @@ Scan entire system and regenerate MAP.md.
 
 ### Process
 
-1. **Scan**: intake/ (reference docs), backlog/ (questions), lines/ (active + cycles), theories/ (confidence), paused/ (reasons), closed/ (dates + theories), shared/ (artifacts).
+1. **Scan via rootline** (if available):
+   ```bash
+   # Generate full system view (content docs only, excludes README.md index files)
+   rootline tree . --where 'isIndex == false' --output table
+   # Check connections via graph
+   rootline graph . --format mermaid
+   # Validate all schemas across the project
+   rootline validate --all
+   ```
+   If rootline unavailable, fall back to manually scanning: intake/ (reference docs), backlog/ (questions), lines/ (active + cycles), theories/ (confidence), paused/ (reasons), closed/ (dates + theories), shared/ (artifacts).
 
-2. **Connections**: Search for `[[name]]` wikilinks, review connections.md.
+2. **Connections**: Use `rootline graph . --check` to detect wikilinks and broken references. Supplement with `connections.md` review.
 
-3. **Regenerate MAP.md** with current state.
+3. **Regenerate MAP.md** with data from rootline queries.
 
 **When to run**: After new-line, cycle, reflect (PAUSE/CLOSE), theory, or at start of long sessions.
 
@@ -337,15 +422,20 @@ Scan system and add wikilinks `[[name]]` where mentions are detected.
 
 ### Process
 
-1. **Build entity list**: folder names from lines/, theories/, backlog/.
+1. **Check existing links via rootline** (if available):
+   ```bash
+   rootline graph . --check
+   ```
 
-2. **Search**: For each .md file, find mentions NOT already inside `[[...]]`. Exclude code blocks, URLs, file paths.
+2. **Build entity list**: folder names from lines/, theories/, backlog/.
 
-3. **Propose changes**: Show summary with file, line, and proposed wikilink. Ask: apply all / review one by one / cancel.
+3. **Search**: For each .md file, find mentions NOT already inside `[[...]]`. Exclude code blocks, URLs, file paths.
 
-4. **Apply**: Edit files, report changes, suggest `/discover update-map`.
+4. **Propose changes**: Show summary with file, line, and proposed wikilink. Ask: apply all / review one by one / cancel.
 
-5. **Orphan concepts** (optional): If frequent mentions of concepts without files, ask about creating stubs.
+5. **Apply**: Edit files, report changes, suggest `/discover update-map`.
+
+6. **Orphan concepts** (optional): If frequent mentions of concepts without files, ask about creating stubs.
 
 **Don't modify**: skill directories, templates.
 
@@ -357,7 +447,13 @@ Evaluate maturity of emergent patterns.
 
 ### Process
 
-1. **Extract patterns** from `connections.md` "Emergent Patterns" section.
+1. **Extract patterns**: Query rootline for theories by confidence level (if available), then supplement with `connections.md` "Emergent Patterns" section:
+   ```bash
+   rootline query theories/ --where 'confianza == "emergent"' --output table
+   rootline query theories/ --where 'confianza == "developing"' --output table
+   rootline query theories/ --where 'confianza == "consolidated"' --output table
+   ```
+   If rootline unavailable, extract patterns from `connections.md` manually.
 
 2. **Quantitative score**:
    | Criterion | Points |

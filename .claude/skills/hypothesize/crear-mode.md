@@ -110,6 +110,13 @@ Una fila por CAP. Poblar con lo conocido hasta el momento.
 ## ESTRUCTURA DEL DOCUMENTO DE SALIDA
 
 ```markdown
+---
+estado: "Fase N"
+fecha: "YYYY-MM-DD"
+metodo: hypothesize
+origen: ""
+fase_actual: N
+---
 # [Tema] — Investigación Estructurada
 > Estado: Fase N [estado]. Fases N+1 a 5 en construcción.
 
@@ -176,3 +183,5 @@ Una fila por CAP. Poblar con lo conocido hasta el momento.
 - [ ] Las falacias detectadas están resueltas o migradas como preguntas de falsación
 - [ ] Los supuestos explícitos están separados de los hechos verificados
 - [ ] El mapa de inferencias marca huecos de evidencia con ⚠
+- [ ] Frontmatter includes `estado`, `fecha`, `metodo`, `origen`, `fase_actual`
+- [ ] If rootline is available, `rootline validate [file]` passes

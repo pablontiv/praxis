@@ -55,7 +55,7 @@ allowed-tools:
 roadmap-root: # preguntar al usuario
 done-statuses: ['Completed', 'Obsolete']
 active-statuses: ['Pending', 'Specified', 'In Progress']
-container-types: ['feature', 'historia']
+leaf-filter: 'isIndex == false'
 story-close-verify: []
 ---
 ```
@@ -68,14 +68,14 @@ En todo este documento, `<roadmap-root>` se refiere al valor configurado.
 |------------|---------|-------------|
 | `done-statuses` | `['Completed', 'Obsolete']` | `<done-statuses>` |
 | `active-statuses` | `['Pending', 'Specified', 'In Progress']` | `<active-statuses>` |
-| `container-types` | `['feature', 'historia']` | `<container-types>` |
+| `leaf-filter` | `'isIndex == false'` | `<leaf-filter>` |
 | `story-close-verify` | `[]` | `<story-close-cmds>` |
 
 Expresiones helper (pre-computar una vez, reusar en todos los comandos):
 
 - `<where-not-done>`: `not (estado in <done-statuses>)`
 - `<where-active>`: `estado in <active-statuses>`
-- `<where-leaf>`: `tipo not in <container-types>`
+- `<where-leaf>`: `<leaf-filter>`
 
 ---
 

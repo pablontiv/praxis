@@ -37,6 +37,82 @@ Determinar qué modo aplicar según la entrada del usuario (ver ARGUMENTS al fin
 
 ---
 
+# Rootline Integration (optional data layer)
+
+hypothesize can use rootline as its data layer for frontmatter validation. Rootline is optional — the skill works without it, but validation features are disabled.
+
+## Gate check
+
+After routing, check for rootline availability:
+
+```bash
+command -v rootline
+```
+
+If not found, skip all `rootline validate` steps below. All other behavior (phases, document structure, checklists) remains unchanged.
+
+## Frontmatter schema
+
+Investigation documents should live in directories with a `.stem` schema that validates their frontmatter:
+
+```yaml
+version: 2
+schema:
+    estado:
+        type: string
+        required: true
+    fecha:
+        type: string
+        required: true
+    metodo:
+        type: enum
+        enum: [hypothesize]
+    origen:
+        type: string
+    fase_actual:
+        type: integer
+```
+
+## Frontmatter in investigation documents
+
+Every investigation document includes YAML frontmatter as its structured metadata:
+
+```yaml
+---
+estado: "Fase 1"
+fecha: "YYYY-MM-DD"
+metodo: hypothesize
+origen: ""
+fase_actual: 1
+---
+```
+
+The frontmatter fields mirror the inline `> Estado: Fase N` header:
+- `estado` and `fase_actual` track phase state in a rootline-queryable way
+- `fecha` is the creation date
+- `metodo` is always `hypothesize`
+- `origen` links to the source document or line, if any
+
+## Keeping frontmatter and inline header in sync
+
+Whenever the inline `> Estado: Fase N [estado]` header changes (phase transition, status update), also update:
+- `estado` in frontmatter (e.g., `estado: "Fase 3"`)
+- `fase_actual` in frontmatter (e.g., `fase_actual: 3`)
+
+Both representations must always agree. The frontmatter is the structured source of truth; the inline header is the human-readable display.
+
+## Validation step
+
+After creating or updating an investigation document, if rootline is available:
+
+```bash
+rootline validate [file]
+```
+
+This validates the frontmatter against the `.stem` schema. If validation fails, report the errors but do not block the investigation workflow.
+
+---
+
 ## Ejecución por modo
 
 Una vez determinado el modo, leer el archivo correspondiente y seguir sus instrucciones:
