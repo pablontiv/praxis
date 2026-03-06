@@ -58,6 +58,7 @@ Para cada sesión relevante, usar Read para cargar el archivo `.jsonl`. Cada lí
 | `[keyword]` | Filtrar sesiones que contengan el keyword, mostrar extractos |
 | `--topics` | Analizar contenido y agrupar por temas frecuentes |
 | `--recent N` | Listar las N sesiones más recientes |
+| `--context` | Query rootline session-state (see Rootline Integration section) |
 
 ### 5. Presentar resultados
 
@@ -68,6 +69,26 @@ Para cada sesión mostrar:
 - Primeras 3-5 líneas significativas del usuario
 - Si hay keyword: extractos con contexto alrededor de la coincidencia
 
+## Rootline Integration (optional)
+
+If rootline and `/context-save` are available, sessions can also query structured session state:
+
+```bash
+command -v rootline 2>/dev/null
+```
+
+If rootline is available and `.claude/session-state/` exists with a `.stem` schema:
+
+```bash
+# List saved session contexts for this project
+rootline query .claude/session-state/ --where "proyecto == '$(basename $(pwd))'" --output table
+
+# Most recent saved context
+rootline query .claude/session-state/ --where "proyecto == '$(basename $(pwd))'" --output table --limit 1
+```
+
+This supplements (not replaces) the .jsonl session search. Rootline session-state has structured metadata (branch, active work, decisions, next steps) while .jsonl has full conversation history.
+
 ## Modos de uso
 
 | Comando | Descripción |
@@ -76,6 +97,7 @@ Para cada sesión mostrar:
 | `/sessions [keyword]` | Filtra sesiones que contengan el keyword |
 | `/sessions --topics` | Distribución de temas discutidos |
 | `/sessions --recent N` | Lista las N sesiones más recientes |
+| `/sessions --context` | Buscar contexto guardado via rootline (requiere /context-save) |
 
 ## Cuándo usar
 
