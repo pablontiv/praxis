@@ -399,8 +399,8 @@ Generar **árbol de decisión** que muestre ramas ejecutables, cadenas de depend
 #### Paso 1: Recopilar datos (3 comandos en paralelo)
 
 Ejecutar en paralelo:
-1. `rootline tree <roadmap-root>/ --where "<where-not-done>" --output json` — árbol jerárquico con paths, estados y conteos completed/total (~2 KB, reemplaza stats + query)
-2. `rootline graph <roadmap-root>/ --where "<where-not-done>" --output json` — grafo de dependencias entre pendientes (~3 KB)
+1. `rootline tree <roadmap-root>/ --where "<where-leaf> && <where-not-done>" --output json` — árbol jerárquico de tasks pendientes con paths, estados y conteos (~2 KB)
+2. `rootline graph <roadmap-root>/ --where "<where-leaf> && <where-not-done>" --output json` — grafo de dependencias entre tasks pendientes (~3 KB)
 3. `git log -5 --format='%h %s'` — últimos commits para proximidad
 
 **IMPORTANTE**: Después de Paso 1, NO ejecutar más comandos bash. Los Pasos 2-5 procesan los JSONs obtenidos.
@@ -417,6 +417,8 @@ Usar los outputs JSON de Paso 1 para construir las ramas:
 NO ejecutar comandos adicionales. Todo se extrae de los 3 outputs del Paso 1.
 
 #### Paso 3: Clasificar ramas (procesamiento de datos, SIN comandos adicionales)
+
+**Solo tasks aparecen en el árbol.** Stories/Features sin tasks son invisibles al decision tree — se materializan con `/roadmap plan`.
 
 Usando `estado` de cada hoja del tree JSON (cmd 1):
 
