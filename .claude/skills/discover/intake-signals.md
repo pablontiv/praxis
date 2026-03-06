@@ -17,6 +17,7 @@ Detect from file extension and content structure:
 | `data` | `.json`, `.yaml`, `.csv`, `.xml`, or structured data without prose |
 | `prose` | `.txt`, `.doc`, or long paragraphs without markdown structure |
 | `mixed` | Combines code blocks with prose, or multiple formats |
+| `binary` | `.pdf`, `.png`, `.jpg`, `.xlsx`, or non-text content |
 
 ### 2. Structure level
 
@@ -87,17 +88,17 @@ Combine signals to classify the file into one of 5 entry points:
 | Signal profile | Entry point | Action |
 |----------------|-------------|--------|
 | flat + low assertions + no evidence | **BACKLOG** | `/discover new-line` — create line of inquiry, full anti-presupposition |
-| structured + high assertions + none/anecdotal evidence | **HYPOTHESIZE (directo)** | `/hypothesize` — extract claims as propositions, falsify |
-| structured + systematic evidence + partial/complete | **HYPOTHESIZE (seguimiento)** | `/hypothesize [adapted file]` — parse state, continue investigation |
+| structured + high assertions + none/anecdotal evidence | **HYPOTHESIZE (direct)** | `/hypothesize` — extract claims as propositions, falsify |
+| structured + systematic evidence + partial/complete | **HYPOTHESIZE (follow-up)** | `/hypothesize [adapted file]` — parse state, continue investigation |
 | high actionability + explicit specs + domain-specific/technical | **ROADMAP** | `/roadmap` — decompose into epics/features/stories/tasks |
-| code or data format | **CONTEXTO** | Attach as evidence to existing line or create new line with this as initial material |
+| code or data format | **CONTEXT** | Attach as evidence to existing line or create new line with this as initial material |
 
 ### Priority rules
 
 When signals point to multiple entry points:
 1. If **explicit actionability** + **technical** → ROADMAP wins (the document is ready to decompose)
 2. If **high assertions** + **no/anecdotal evidence** → HYPOTHESIZE wins (claims need validation)
-3. If **systematic evidence** exists → HYPOTHESIZE-SEGUIMIENTO wins (research to continue)
+3. If **systematic evidence** exists → HYPOTHESIZE (follow-up) wins (research to continue)
 4. When still ambiguous → apply **Glaser Test** as tiebreaker
 
 ---
@@ -129,7 +130,7 @@ ADAPTATIONS:
 4. Any URLs/references become starting material for Cycle 1
 ```
 
-### For HYPOTHESIZE (directo) → `/hypothesize`
+### For HYPOTHESIZE (direct) → `/hypothesize`
 
 ```
 ADAPTATIONS:
@@ -140,7 +141,7 @@ ADAPTATIONS:
 5. Named tools/frameworks become evaluation targets
 ```
 
-### For HYPOTHESIZE (seguimiento) → `/hypothesize [file]`
+### For HYPOTHESIZE (follow-up) → `/hypothesize [file]`
 
 ```
 ADAPTATIONS:
@@ -162,7 +163,7 @@ ADAPTATIONS:
 5. Flag any claims that should be validated first (/hypothesize)
 ```
 
-### For CONTEXTO (code/data)
+### For CONTEXT (code/data)
 
 ```
 ADAPTATIONS:

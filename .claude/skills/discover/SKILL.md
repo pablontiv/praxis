@@ -1,21 +1,33 @@
 ---
 name: discover
 description: |
-  Structured R&D framework for lines of inquiry. Supports Plan-Act-Observe-Reflect cycles,
-  grounded theory, anti-presupposition process, and knowledge connections.
+  Structured R&D framework for open-ended exploration through lines of inquiry.
+  Supports Plan-Act-Observe-Reflect cycles, grounded theory, anti-presupposition
+  process, and knowledge connections. Manages the full lifecycle: create lines,
+  document cycles, reflect on progress, pause/resume, close with theory extraction.
 
   Subcommands: init, new-line, cycle, reflect, theory, status, update-map,
-  interlink, review-patterns, research. Use @file to analyze an external file.
+  interlink, review-patterns, research, resume. Use @file to analyze an external file.
   Without arguments shows system status.
 
-  Use when the user says "nueva línea", "new line", "descubrir", "discover",
-  "ciclo", "cycle", "reflexión", "reflect", "teoría", "theory",
-  "estado", "status", "inicializar", "init", "actualizar mapa",
-  "interconectar", "revisar patrones", "investigar", or wants to
-  manage lines of inquiry, document cycles, or track emergent patterns.
-  Also use when the user provides an external file to analyze with "@file".
+  Use this skill whenever the user wants to explore a topic systematically,
+  track what they're learning across sessions, open or manage lines of inquiry,
+  document research cycles (plan/act/observe/reflect), decide whether to continue
+  or pause an investigation, document emergent patterns or theories, resume a
+  paused line, analyze an external file to classify it into the research flow,
+  or check research project status.
+
+  Trigger phrases (any language): "nueva línea", "new line", "descubrir",
+  "discover", "ciclo", "cycle", "reflexión", "reflect", "teoría", "theory",
+  "estado", "status", "init", "actualizar mapa", "interconectar",
+  "revisar patrones", "investigar", "retomar", "reanudar", "resume",
+  "explorar", "explore", "@file".
+
+  DO NOT use for: formal hypothesis falsification with 5-phase structure
+  (that's /hypothesize), breaking work into epics/stories/tasks (that's /roadmap),
+  or general code review/refactoring (no skill needed).
 user-invocable: true
-argument-hint: "<subcommand> [args] | @file — subcommands: init, new-line, cycle, reflect, theory, status, update-map, interlink, review-patterns, research"
+argument-hint: "<subcommand> [args] | @file — subcommands: init, new-line, cycle, reflect, theory, status, update-map, interlink, review-patterns, research, resume"
 ---
 
 # /discover — Structured R&D Framework
@@ -37,6 +49,7 @@ Parse `$ARGUMENTS` to determine subcommand. First token = subcommand, rest = arg
 | `interlink` | → **interlink** | — |
 | `review-patterns` | → **review-patterns** | — |
 | `research topic [--deep]` | → **research** | `topic [--deep]` |
+| `resume line-name` | → **resume** | `line-name` |
 | `@path/to/file` | → **intake** | file path (without `@`) |
 
 **`@` detection**: If `$ARGUMENTS` starts with `@`, strip the `@` prefix and route to **intake** with the remaining path as the file argument.
@@ -75,7 +88,7 @@ shared/templates/
    - [CLOSURE.md](templates/CLOSURE.md)
    - [THEORY.md](templates/THEORY.md)
 
-4. **Generate FRAMEWORK.md**: Copy [FRAMEWORK.md](templates/FRAMEWORK.md) to project root.
+4. **Copy FRAMEWORK.md**: Copy [FRAMEWORK.md](templates/FRAMEWORK.md) to project root as methodology reference.
 
 5. **Suggest CLAUDE.md setup**: If the project doesn't have a CLAUDE.md, suggest the user create one referencing the generated `.claude/rules/` files. Do not auto-generate — users should own their CLAUDE.md.
 
@@ -236,8 +249,8 @@ Structured reflection to evaluate continue/pause/close a line.
 
 4. **Execute**:
    - CONTINUE → ask intention for next cycle
-   - PAUSE → move folder to `paused/`, update state
-   - CLOSE → **automatically run review-patterns first**, then create CLOSURE.md from [template](templates/CLOSURE.md), move to `closed/`, update state
+   - PAUSE → move folder to `paused/`, update state. To resume later: `/discover resume [name]`
+   - CLOSE → **automatically run review-patterns first**, then create CLOSURE.md from [template](templates/CLOSURE.md), move to `closed/`, update state. Check if any `intake/` files referenced by this line should graduate to `/hypothesize` or `/roadmap` — suggest next step for each.
    - FORK → run new-line, document connection
 
 **Validations**: Line must exist. Don't allow closing without at least 2 cycles (unless explicit).
@@ -280,7 +293,7 @@ Show system state. Read-only.
 
 2. **Display**:
    ```
-   ## FORGE — System Status
+   ## Discover — System Status
 
    ### Active Lines
    [List with name and current cycle]
@@ -322,6 +335,8 @@ Scan entire system and regenerate MAP.md.
 3. **Regenerate MAP.md** with current state.
 
 **When to run**: After new-line, cycle, reflect (PAUSE/CLOSE), theory, or at start of long sessions.
+
+**Intake audit**: During update-map, check for `intake/` files not referenced by any active line or backlog item. Report orphaned files and suggest: graduate to `/hypothesize` or `/roadmap`, attach to an existing line, or archive.
 
 ---
 
@@ -374,6 +389,28 @@ Evaluate maturity of emergent patterns.
 4. **Show results** and ask: formalize with `/discover theory`, continue, or add to backlog.
 
 **Key principle**: Many mentions ≠ mature theory. High score is a proxy, not proof.
+
+---
+
+## Subcommand: resume
+
+Resume a paused line of inquiry.
+
+**Args**: `[line-name]` — name of line in `paused/`.
+
+### Process
+
+1. **Validate**: Check that `paused/[name]/` exists. If not, list available paused lines.
+
+2. **Move**: Move `paused/[name]/` back to `lines/[name]/`.
+
+3. **Check capacity**: If already 3 active lines, warn and ask which to pause first.
+
+4. **Review state**: Read QUESTION.md and latest cycle in FIELD-LOG.md. Present a summary so the user can re-orient.
+
+5. **Update system**: Update `.claude/rules/current-state.md` — move line from "Paused" to "Active".
+
+6. **Next step**: Ask: "Ready for a new cycle? (`/discover cycle [name]`)" or "Want to review the question first?"
 
 ---
 
@@ -477,10 +514,10 @@ ALTERNATIVES:
 
 ### Edge cases
 
-- **Binary files** (images, PDFs): Format = binary → always CONTEXTO
+- **Binary files** (images, PDFs): Format = binary → always CONTEXT
 - **Very short files** (<5 lines): Treat as a topic → BACKLOG
 - **Empty files**: Inform user, suggest starting with `/discover new-line` instead
-- **Code files**: Classification = CONTEXTO — suggest attaching as evidence to an existing line
+- **Code files**: Classification = CONTEXT — suggest attaching as evidence to an existing line
 
 **Notes**: Intake never auto-executes a skill — it classifies, suggests, and hands off. The user decides.
 
