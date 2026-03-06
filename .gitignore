@@ -1,0 +1,28 @@
+# Usage-context artifacts (created by skills at runtime in target repos)
+MAP.md
+FRAMEWORK.md
+lines/
+theories/
+paused/
+closed/
+backlog/
+intake/
+shared/
+
+# Runtime state
+.claude/rules/current-state.md
+.claude/rules/connections.md
+.claude/roadmap.local.md
+
+# Eval workspaces and results
+*-workspace/
+.claude/skills/*/evals/
+
+# Agent worktrees (ephemeral)
+.claude/worktrees/
+
+# Build / deps
+dashboard/node_modules/
+dashboard/.next/
+__pycache__/
+*.pyc
