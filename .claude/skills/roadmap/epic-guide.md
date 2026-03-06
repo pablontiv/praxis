@@ -38,6 +38,46 @@ Un epic debe partirse cuando:
 - **Máximo**: 7 Features — más allá de esto, dividir
 - **Mínimo**: 2 Features — si tiene 1, probablemente es un Feature dentro de otro Epic
 
+## Profundidad
+
+El tamaño mide cuántas Features tiene un Epic. La profundidad mide si esas Features tienen sustancia suficiente para justificar el Epic como unidad de trabajo.
+
+**Regla de sustancia mínima**: Un Epic viable tiene al menos **6 Tasks totales**. Si un Epic tiene < 3 Features, cada Feature debe tener >= 2 Stories — esto garantiza profundidad incluso con pocas Features.
+
+### Anti-patrón: Epic delgado
+
+```
+E03-live-preview/           ← 2 Features × 1 Story × 2 Tasks = 4 Tasks
+├── F01-watch-mode/
+│   └── S001-file-watcher   (2 Tasks)
+└── F02-browser-sync/
+    └── S001-reload          (2 Tasks)
+```
+
+4 Tasks no justifican un Epic. Esta estructura debería absorberse como Feature en un Epic vecino (ej: E01 Core Pipeline → F04-live-preview con 2 Stories).
+
+### Patrón correcto: Epic con sustancia
+
+```
+E02-developer-experience/   ← 2 Features × 2 Stories × 2-3 Tasks = 10 Tasks
+├── F01-live-preview/
+│   ├── S001-file-watcher    (3 Tasks)
+│   └── S002-browser-sync    (2 Tasks)
+└── F02-template-system/
+    ├── S001-template-engine  (3 Tasks)
+    └── S002-builtin-themes   (2 Tasks)
+```
+
+10 Tasks con 2 Features sustanciales. Cada Feature tiene profundidad real (2 Stories con múltiples Tasks).
+
+### Qué hacer con Epics delgados
+
+1. **Absorber**: Mover como Feature dentro de un Epic vecino que comparta dominio
+2. **Enriquecer**: Identificar Stories faltantes que den profundidad real (no padding artificial)
+3. **Fusionar**: Combinar dos Epics delgados relacionados en uno con sustancia
+
+La opción 1 es la más común. Si un Epic tiene solo 2 Features con 1 Story cada uno, casi siempre es un Feature disfrazado de Epic.
+
 ## Workflow
 
 ### Paso 1: Parsear Argumentos

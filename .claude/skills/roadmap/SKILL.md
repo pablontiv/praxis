@@ -5,14 +5,20 @@ description: |
   Accepts free text to decompose into epics, features, stories, and tasks.
   Subcommands: pending, loop, plan. Without arguments shows decision tree.
   Tasks are self-contained units with technical specs and binary acceptance criteria.
-  This skill should be used when the user says "descomponer en features",
-  "crear roadmap de X", "estructura de X",
-  "planificar implementación de X", "qué sigue", "ver roadmap",
-  "ver progreso", "qué falta", "tasks pendientes",
-  "loop de tasks", "ejecutar pendientes", "implementar tasks",
-  "roadmap loop", "ejecutar roadmap",
-  "crear roadmap del plan", "materializar plan",
-  or provides free text describing work to decompose.
+  ALWAYS use this skill when the user wants to break down a project into
+  structured work items, check progress on an existing roadmap, execute
+  pending tasks, or convert research results into an implementation plan.
+  This includes when the user describes a system they want to build and
+  needs it organized into manageable pieces, asks "how should I structure
+  this project", wants to see what tasks remain, or says things like
+  "descomponer", "roadmap", "estructura de trabajo", "qué falta",
+  "tasks pendientes", "loop de tasks", "planificar implementación",
+  "materializar plan", "ver progreso", "ejecutar pendientes",
+  "qué sigue", or provides a description of features/capabilities
+  they want to implement. Even if the user doesn't say "roadmap"
+  explicitly, trigger this skill whenever they describe multiple
+  features or components of a system and want them organized into
+  a work breakdown structure before writing code.
 argument-hint: "<texto libre> | [pending|loop|plan] [args]"
 allowed-tools:
   - Write
@@ -32,45 +38,32 @@ allowed-tools:
 
 # /roadmap — Framework de Planificación AI-Native
 
-## Dependencias
+## Configuración del Proyecto — Bootstrap Obligatorio
 
-**Requerida: `rootline` CLI** — motor de base de datos sobre filesystem que este skill usa para validación, queries, auto-numbering, scaffolding y grafos de dependencia.
+**PRIMER PASO de CUALQUIER operación** (pending, loop, plan, sin argumentos, modo autónomo). Ejecutar SIEMPRE, ANTES de cualquier otra acción — incluyendo antes del gate check de rootline. Este paso NO requiere rootline.
 
-Instalación:
-```bash
-curl -fsSL https://raw.githubusercontent.com/pablontiv/rootline/master/install.sh | bash
-```
+1. Leer `.claude/roadmap.local.md`. Si no existe:
+   - Preguntar al usuario: ¿Dónde vive el roadmap? (ej: `docs/epics`)
+   - Crear `.claude/roadmap.local.md` con el frontmatter mínimo (ver template abajo)
+2. Extraer `roadmap-root` del frontmatter. Si falta → preguntar y actualizar el archivo.
+3. Extraer filtros (ver tabla). Si faltan → usar defaults, NO preguntar.
+4. Pre-computar expresiones helper (una vez, reusar en todos los comandos).
 
-**Gate check obligatorio**: Al inicio de CUALQUIER subcomando (`pending`, `loop`, `plan`, o sin argumentos), ejecutar:
-```bash
-command -v rootline
-```
-Si no está disponible → informar al usuario:
-> `rootline` no está instalado. Es requerido por `/roadmap`.
-> Instalar con: `curl -fsSL https://raw.githubusercontent.com/pablontiv/rootline/master/install.sh | bash`
-
-**PARAR. No proceder manualmente ni intentar simular rootline con lecturas directas de archivos.**
-
----
-
-## Configuración del Proyecto
-
-El path raíz del roadmap se define en `.claude/roadmap.local.md` del proyecto:
+**Template mínimo** (crear si no existe):
 
 ```yaml
 ---
-roadmap-root: docs/epics
+roadmap-root: # preguntar al usuario
+done-statuses: ['Completed', 'Obsolete']
+active-statuses: ['Pending', 'Specified', 'In Progress']
+container-types: ['feature', 'historia']
+story-close-verify: []
 ---
 ```
-
-Si `.claude/roadmap.local.md` no existe o no tiene `roadmap-root`, preguntar al usuario dónde vive el roadmap. **No asumir `docs/epics/`.**
 
 En todo este documento, `<roadmap-root>` se refiere al valor configurado.
 
 ### Configuración de Filtros
-
-Leer `.claude/roadmap.local.md` YAML frontmatter para estos campos adicionales.
-Si un campo no existe, usar los defaults indicados:
 
 | Config key | Default | Placeholder |
 |------------|---------|-------------|
@@ -84,6 +77,27 @@ Expresiones helper (pre-computar una vez, reusar en todos los comandos):
 - `<where-not-done>`: `not (estado in <done-statuses>)`
 - `<where-active>`: `estado in <active-statuses>`
 - `<where-leaf>`: `tipo not in <container-types>`
+
+---
+
+## Dependencia: rootline CLI
+
+**Requerida para materialización y queries** (`pending`, `loop`, `plan` post-aprobación). NO requerida para generar planes de descomposición.
+
+Instalación:
+```bash
+curl -fsSL https://raw.githubusercontent.com/pablontiv/rootline/master/install.sh | bash
+```
+
+**Gate check**: Antes de ejecutar comandos `rootline` (crear archivos, queries, validación), verificar:
+```bash
+command -v rootline
+```
+Si no está disponible → informar al usuario:
+> `rootline` no está instalado. Es requerido para materializar el roadmap.
+> Instalar con: `curl -fsSL https://raw.githubusercontent.com/pablontiv/rootline/master/install.sh | bash`
+
+**Alcance del gate**: Solo bloquea operaciones que ejecutan rootline (scaffolding, validate, query, tree, graph). La generación de planes de descomposición (modo autónomo, Paso 1-6) NO requiere rootline y puede proceder normalmente.
 
 ---
 
@@ -107,6 +121,10 @@ Después de que el usuario aprueba el plan, informarle que puede ejecutar `/road
 
 Cuando `$ARGUMENTS` NO empieza con `pending|loop|plan`, activar modo de evaluación autónoma.
 
+### Paso 0: Bootstrap (obligatorio — ejecutar PRIMERO)
+
+Ejecutar la sección "Configuración del Proyecto — Bootstrap Obligatorio" de arriba. Leer o crear `.claude/roadmap.local.md` ANTES de cualquier análisis. Este paso NO requiere rootline.
+
 ### Paso 1: Análisis de Intención
 
 Leer `$ARGUMENTS` y determinar:
@@ -123,12 +141,32 @@ Leer TODA la documentación disponible del proyecto mencionado:
 
 Esto es fundamental — sin entender el proyecto completo, la descomposición será artificial.
 
-### Paso 2.5: Formalizar Contratos
+### Paso 2.5: Filtro de Vocabulario (obligatorio)
+
+El roadmap es un artefacto de **implementación**. Si el contexto proviene de `/discover`, `/hypothesize`, o cualquier documento de investigación, traducir TODO el vocabulario antes de descomponer:
+
+| Vocabulario de investigación (NUNCA usar) | Vocabulario de implementación (usar) |
+|-------------------------------------------|--------------------------------------|
+| Línea de investigación, hipótesis, premisa | Objetivo, capacidad, requisito |
+| Categoría CAP-XX, Mecanismo M-XX, CD-XX | Nombre descriptivo del dominio técnico |
+| Fase, ciclo PAOR, observación, reflexión | (eliminar — no aplica) |
+| Premisa empírica, evidencia, falsación | Requisito técnico, constraint |
+| Veredicto Go/No-Go, señal confirmatoria | (eliminar — la decisión ya fue tomada) |
+| Código interno LI-XX, H-XX | (eliminar — usar nombre descriptivo) |
+
+**Test de aislamiento**: ¿Un desarrollador que NO participó en la investigación entiende cada nombre de Epic, Feature, Story y Task sin consultar otro documento? Si no → reescribir.
+
+**Anti-patrones**:
+- ❌ Epic "Implementar resultados de LI-03" → ✅ Epic "Sistema de validación de documentos"
+- ❌ Story "Validar premisa CAP-07 sobre M6" → ✅ Story "Parser de frontmatter YAML"
+- ❌ Task "Falsear hipótesis de rendimiento" → ✅ Task "Benchmark de parsing con 1000 archivos"
+
+### Paso 2.6: Formalizar Contratos
 
 **ANTES de descomponer**, para cada Epic identificado, definir:
 
-1. **Postcondiciones** (2-3 constraints observables): Condiciones que serán verdad cuando el Epic se complete. Deben ser verificables con comandos o inspección directa.
-2. **Invariantes**: Reglas que ningún Feature/Story/Task puede violar durante su ejecución. Ejemplo: *"Los workflows existentes siguen funcionando sin regresión"*.
+1. **Postcondiciones** (2-3 constraints observables): Condiciones que serán verdad cuando el Epic se complete. Cada postcondición DEBE incluir un **comando o procedimiento de verificación** concreto. "Produce un PDF válido" no es observable — "`md2pdf input.md -o out.pdf && pdfinfo out.pdf | grep -q Pages`" sí lo es.
+2. **Invariantes**: Reglas que ningún Feature/Story/Task puede violar durante su ejecución. Cada invariante incluye su **procedimiento de verificación**. Ejemplo: *"Los workflows existentes siguen funcionando sin regresión"* → verificar: `ansible-playbook site.yml --check` retorna 0.
 3. **Out of scope**: Límites explícitos que previenen scope creep.
 
 **Formato en plan file — Constraint Map:**
@@ -164,9 +202,43 @@ Leer [framework-reference.md](framework-reference.md) y aplicar estos criterios 
 | Epic | ¿Cuántos objetivos sistémicos distintos tiene? | Múltiples dominios → múltiples Epics |
 | Feature | ¿Qué bloques pueden cerrarse independientemente? Satisface >= 1 postcondición del Epic | Milestone técnico real (anti-inflación: 3-5 Features, no 10) |
 | Story | ¿Qué capacidades nuevas existen? | Antes/después claro, testeable, no ejecutable en 1 sesión |
-| Task | ¿Qué puede hacer un agente en 1 sesión? | 6 condiciones de task-guide.md |
+| Task | ¿Qué puede hacer un agente en 1 sesión? | 7 condiciones de task-guide.md |
 
-Apply the **scale criteria and decision tree** from [framework-reference.md](framework-reference.md) — targets: 3-5 Features/Epic, 1-4 Stories/Feature, 1-5 Tasks/Story. Split when exceeding limits, absorb when only 1 child exists.
+#### Criterios de Escala (obligatorios — verificar ANTES de presentar)
+
+| Nivel | Target | Mínimo | Máximo | Si excede → | Si solo 1 hijo → |
+|-------|--------|--------|--------|-------------|-------------------|
+| Features/Epic | 3-5 | 2 | 7 | Dividir Epic | Absorber en Epic vecino |
+| Stories/Feature | 1-4 | 1 | 4 | Dividir Feature | Aceptable (Feature simple) |
+| Tasks/Story | 1-5 | 1 | 5 | Dividir Story | Aceptable (Story atómica) |
+
+**Sustancia mínima por Epic**: Si un Epic tiene < 3 Features, cada Feature DEBE tener >= 2 Stories. Un Epic con 2 Features de 1 Story cada uno (≈ 4 Tasks) no tiene sustancia suficiente — absorber como Feature en un Epic vecino o enriquecer con más Stories. Mínimo viable: 6 Tasks por Epic.
+
+**Heurísticas de granularidad:**
+
+- **Feature con 1 Story** → Probablemente no es Feature, absorber en Feature vecino
+- **Story que se ejecuta en 1 sesión** → Probablemente es un Task, no una Story
+- **Task con más de 5 archivos a modificar** → Demasiado grande, dividir
+- **Epic con nombre genérico** (Advanced, Misc, DX, Improvements) → No tiene intención clara, replantear
+- **Epic con < 6 Tasks totales** → No tiene sustancia, absorber en Epic vecino o enriquecer Features
+
+**Ejemplo concreto de buena vs mala granularidad:**
+
+```
+❌ MAL: 1 Epic con 8 Features de 1 Story cada uno
+   E01: Platform Improvements
+   ├── F01: Config → S001: Add config (1 task)
+   ├── F02: Logging → S001: Add logging (1 task)
+   └── ... (6 más igual)
+
+✅ BIEN: 2 Epics enfocados con Features sustanciales
+   E01: Configuration System
+   ├── F01: Schema Validation (S001, S002 → 4 tasks)
+   └── F02: Multi-env Support (S001, S002 → 3 tasks)
+   E02: Observability
+   ├── F01: Structured Logging (S001 → 3 tasks)
+   └── F02: Health Monitoring (S001, S002 → 4 tasks)
+```
 
 ### Paso 4: Generar Descomposición en Plan File
 
@@ -249,9 +321,10 @@ Vista jerárquica filtrada: solo Features con trabajo pendiente.
 
 **Procedimiento**:
 1. Ejecutar `rootline tree <roadmap-root>/ --where '<where-leaf> && <where-not-done>' --output table`
-2. Ejecutar `rootline stats <roadmap-root>/ --where '<where-leaf> && <where-not-done>' --output table`
 
-Presenta ambos outputs al usuario.
+El tree ya incluye conteos `completed/total` por nodo — NO ejecutar `rootline stats` por separado (es redundante).
+
+Presenta el output al usuario.
 
 ---
 
@@ -607,9 +680,10 @@ Después de crear un artefacto, actualizar la tabla en el README padre:
 | `rootline describe <dir> --field schema.id.next` | Auto-numbering: obtener próximo ID en cualquier nivel |
 | `rootline new <path>` | Scaffolding: crear archivo con frontmatter correcto según .stem |
 | `rootline query <path> --where "expr"` | Discovery: buscar records por frontmatter (estado, tipo, etc.) |
-| `rootline tree <path> --where "expr" --output table` | Vista jerárquica filtrada: `/roadmap pending` |
-| `rootline stats <path> --where "expr" --output table` | Resumen estadístico filtrado por expresión |
+| `rootline tree <path> --where "expr" --output table\|json` | Vista jerárquica con conteos completed/total por nodo (reemplaza stats) |
 | `rootline graph <path> --where "expr" --check` | Grafo de dependencias filtrado |
+
+**Nota**: `rootline stats` es redundante — `rootline tree` ya incluye completed/total. NO usar stats por separado.
 
 ## Referencia
 
