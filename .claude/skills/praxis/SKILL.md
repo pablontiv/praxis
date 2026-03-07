@@ -1,17 +1,18 @@
 ---
 name: praxis
 description: |
-  Intelligent router for the research-to-implementation pipeline. Classifies
-  any input (file, topic, or empty) and delegates to the right skill: discover
-  for open exploration, hypothesize for evidence-based evaluation, or roadmap
-  for project decomposition. Use this skill when the user wants to process a
-  document or topic through a structured workflow, check project status, resume
-  previous work, or figure out what to do next. Trigger on: "praxis", "procesar",
-  "evaluar", "siguiente paso", "en que va", "continuar", "retomar", "que sigue",
-  or when the user provides a file or topic and it's unclear which specific skill
-  applies. Also use when the user asks for a general status overview of their
-  research/planning state. Do NOT use for direct coding tasks (refactoring, tests,
-  bug fixes, config) — those don't need skill routing.
+  SIEMPRE usar este skill como punto de entrada por defecto cuando la intención
+  del usuario no es clara o podría involucrar investigación, evaluación o
+  planificación. Clasifica el input y delega al skill correcto: discover
+  (exploración), hypothesize (decisiones con evidencia), o roadmap
+  (descomposición de proyecto). Usar este skill siempre que el usuario
+  proporcione un archivo para analizar, pregunte qué hacer a continuación,
+  mencione continuar trabajo previo, pida un status general, o dé instrucciones
+  ambiguas — incluso si no menciona "praxis" ni ningún skill específico, e
+  incluso si parece una pregunta simple. Triggers: "que sigue", "siguiente paso",
+  "status", "continuar", "retomar", "por donde empiezo", "what should I do",
+  "next step", "resume", "en que va".
+  (No para: tareas directas de código como refactoring, bug fixes, o config.)
 user-invocable: true
 argument-hint: "[archivo.md] | [tema] | (vacio = auto-detect)"
 ---

@@ -1,6 +1,16 @@
 ---
 name: sessions
-description: Buscar y analizar sesiones anteriores de Claude Code para recuperar contexto entre sesiones
+description: |
+  Buscar y analizar el historial de conversaciones de sesiones anteriores de
+  Claude Code para recuperar contexto perdido. Lee archivos .jsonl de sesiones,
+  filtra por keyword, muestra distribución de temas, y extrae fragmentos
+  relevantes. Usar este skill siempre que el usuario mencione sesiones
+  anteriores, pregunte "de que hablamos sobre X?", quiera encontrar algo de
+  una sesión pasada, diga "lo discutimos antes", "we talked about this before",
+  "find that conversation", o necesite recuperar contexto — incluso si no dice
+  "sessions" e incluso si solo dice "no me acuerdo que habíamos decidido" o
+  "I forgot what we discussed." Para snapshots de estado estructurado
+  (guardar/restaurar progreso), usar context-save en su lugar.
 user-invocable: true
 disable-model-invocation: false
 argument-hint: "[keyword] | --topics | --recent N"

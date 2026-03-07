@@ -1,23 +1,16 @@
 ---
 name: roadmap
 description: |
-  Use when the user knows WHAT to build and needs to plan HOW — decomposing
-  a project into structured, executable work items. Breaks systems down into
-  epics, features, stories, and tasks with technical specs, acceptance criteria,
-  and dependency tracking. Subcommands: pending (show remaining work), loop
-  (execute tasks sequentially), plan (materialize approved decomposition).
-  Without arguments shows a decision tree for prioritization.
-  Trigger when the user: describes a system with multiple features/components
-  and needs them organized before coding, asks "how should I structure this
-  project", wants to check roadmap progress or remaining tasks, needs to
-  execute pending tasks in order, or wants to convert approved research
-  results into an implementation plan.
-  Trigger phrases: "descomponer", "roadmap", "tasks pendientes", "loop",
-  "planificar implementacion", "que falta", "estructura de trabajo",
-  "ejecutar pendientes", "materializar plan", "ver progreso".
-  DO NOT use when the user is still evaluating IF something is worth doing
-  (that's hypothesize) or exploring a topic without clear requirements
-  (that's discover).
+  Usar cuando el usuario sabe QUÉ construir y necesita planificar CÓMO —
+  descomponiendo un proyecto en epics, features, stories y tasks con specs,
+  criterios de aceptación y dependencias. También para ver progreso, trabajo
+  pendiente, o ejecutar tareas en secuencia. Usar este skill siempre que el
+  usuario describa features a construir, pregunte "cómo estructuro este
+  proyecto", liste requerimientos o componentes, quiera ver progreso, o diga
+  "que falta" / "pendientes" / "next task" / "planificar" / "descomponer" —
+  incluso si no dice "roadmap" ni "decompose", e incluso si solo dice
+  "necesito construir X" sin pedir explícitamente un plan.
+  (No para: evaluar SI algo vale la pena = hypothesize, explorar ideas = discover.)
 argument-hint: "<texto libre> | [pending|loop|plan] [args]"
 allowed-tools:
   - Write

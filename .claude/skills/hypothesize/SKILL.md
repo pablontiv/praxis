@@ -1,23 +1,17 @@
 ---
 name: hypothesize
 description: |
-  Use when the user needs to make a decision backed by evidence — evaluating
-  whether a technology, migration, architecture change, or vendor is worth
-  adopting BEFORE committing resources. This skill structures claims into
-  falsifiable hypotheses, gathers evidence for/against each, and produces
-  a Go/No-Go verdict.
-  Three modes: (1) CREAR — new investigation from a topic or proposal,
-  (2) DIRECTO — analyze claims/proposals inline, (3) SEGUIMIENTO — continue
-  an existing .md investigation document.
-  Trigger when the user: presents a proposal with claims to evaluate ("should
-  we migrate to X?", "is Y worth it?"), wants to decide build-vs-buy with
-  evidence, needs to falsify specific technical claims before a commitment,
-  questions whether a rewrite/migration/adoption makes sense, or references
-  an existing investigation document to continue.
-  Trigger phrases: "hypothesize", "falsear", "Go/No-Go", "evaluar si vale",
-  "decidir con evidencia", "analizar claims", "investigacion estructurada".
-  DO NOT use for open-ended exploration without specific claims (that's
-  discover) or for breaking approved plans into tasks (that's roadmap).
+  Usar siempre que el usuario necesite tomar una decisión respaldada por
+  evidencia — evaluar si una tecnología, migración, arquitectura o vendor
+  vale la pena ANTES de comprometer recursos. Estructura claims en hipótesis
+  falsificables, recopila evidencia a favor/en contra, y produce un veredicto
+  Go/No-Go. Usar este skill siempre que el usuario presente una propuesta con
+  claims, pregunte "deberíamos migrar/adoptar/reescribir X?", quiera comparar
+  alternativas con evidencia, comparta un artículo o recomendación preguntando
+  "que opinas?", o referencie un documento de investigación existente — incluso
+  si no pide una evaluación estructurada e incluso si solo dice "vale la pena
+  X?" o "is Y worth it?" o "should we do Z?".
+  (No para: exploración abierta = discover, descomponer planes en tareas = roadmap.)
 user-invocable: true
 argument-hint: "[tema-corto] o [archivo-existente.md] o [contenido con claims a falsar]"
 ---

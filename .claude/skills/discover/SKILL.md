@@ -1,22 +1,17 @@
 ---
 name: discover
 description: |
-  Use for open-ended exploration when the user doesn't have a specific thesis
-  to test — they want to learn, explore, or map out a new domain. Manages
-  lines of inquiry with Plan-Act-Observe-Reflect (PAOR) cycles, grounded
-  theory analysis, and knowledge connections across topics.
-  Subcommands: init, new-line, cycle, reflect, theory, status, update-map,
-  interlink, review-patterns, research, resume. @file analyzes external files.
-  Trigger when the user wants to: open a new line of investigation on a topic
-  they're curious about, document what they observed or learned, reflect on
-  patterns across research sessions, extract a theory from accumulated evidence,
-  check status of active explorations, resume a paused line, or systematically
-  explore a domain before forming concrete hypotheses.
-  Trigger phrases: "nueva linea", "explorar", "discover", "ciclo PAOR",
-  "reflexion", "teoria", "status", "init", "interconectar", "retomar", "@file".
-  DO NOT use when the user has specific claims to evaluate with evidence
-  (that's hypothesize), wants to decompose work into tasks (that's roadmap),
-  or needs direct coding help (no skill needed).
+  Usar para exploración abierta cuando el usuario quiere investigar, aprender,
+  o mapear un dominio que no entiende completamente todavía. Gestiona líneas
+  de investigación con ciclos Plan-Act-Observe-Reflect, grounded theory, y
+  conexiones de conocimiento entre temas. Usar este skill siempre que el
+  usuario exprese curiosidad sobre un tema, quiera explorar o investigar algo,
+  haga preguntas abiertas y amplias, mencione iniciar una nueva investigación,
+  o quiera documentar observaciones y patrones — incluso si no dice "discover"
+  ni "nueva línea", incluso si la pregunta parece simple de responder
+  directamente, e incluso si solo dice "quiero investigar sobre X" o "I want
+  to look into Y."
+  (No para: evaluar claims específicos = hypothesize, planificar tareas = roadmap.)
 user-invocable: true
 argument-hint: "<subcommand> [args] | @file — subcommands: init, new-line, cycle, reflect, theory, status, update-map, interlink, review-patterns, research, resume"
 ---

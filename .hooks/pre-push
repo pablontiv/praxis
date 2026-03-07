@@ -20,21 +20,31 @@ for skill_dir in "$SKILLS_SRC"/*/; do
 done
 echo "praxis: synced skills → $SKILLS_DEST"
 
-# Sync agents
+# Sync agents (by name, consistent with skills)
 AGENTS_SRC="$CLAUDE_SRC/agents"
 AGENTS_DEST="$CLAUDE_DEST/agents"
 if [ -d "$AGENTS_SRC" ]; then
   mkdir -p "$AGENTS_DEST"
-  cp "$AGENTS_SRC"/*.md "$AGENTS_DEST/" 2>/dev/null
+  for agent_file in "$AGENTS_SRC"/*.md; do
+    [ -f "$agent_file" ] || continue
+    agent_name=$(basename "$agent_file")
+    rm -f "${AGENTS_DEST:?}/$agent_name"
+    cp "$agent_file" "$AGENTS_DEST/$agent_name"
+  done
   echo "praxis: synced agents → $AGENTS_DEST"
 fi
 
-# Sync rules
+# Sync rules (by name, consistent with skills)
 RULES_SRC="$CLAUDE_SRC/rules"
 RULES_DEST="$CLAUDE_DEST/rules"
 if [ -d "$RULES_SRC" ]; then
   mkdir -p "$RULES_DEST"
-  cp "$RULES_SRC"/*.md "$RULES_DEST/" 2>/dev/null
+  for rule_file in "$RULES_SRC"/*.md; do
+    [ -f "$rule_file" ] || continue
+    rule_name=$(basename "$rule_file")
+    rm -f "${RULES_DEST:?}/$rule_name"
+    cp "$rule_file" "$RULES_DEST/$rule_name"
+  done
   echo "praxis: synced rules → $RULES_DEST"
 fi
 

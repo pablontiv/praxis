@@ -1,17 +1,16 @@
 ---
 name: preflight
 description: |
-  Pre-flight environment verification. Checks git state, CLI availability,
-  rootline schema integrity, project files, and .stem presence BEFORE any
-  other skill runs. Detects project type automatically and runs the
-  appropriate checks. ALWAYS run this skill when the environment seems
-  wrong, a tool is missing, validation fails unexpectedly, git is in a
-  bad state, or before starting a complex workflow. Trigger on: "preflight",
-  "check environment", "verify setup", "what's missing", "why is this
-  failing", "environment check", "pre-check", "verificar entorno",
-  or when any skill fails due to missing CLI, dirty git, or schema errors.
-  Also runs automatically as a gate before other skills when invoked with
-  --for <skill>.
+  Verificación pre-vuelo del entorno. Chequea estado de git, disponibilidad
+  de CLIs, integridad de schemas rootline, archivos del proyecto, y presencia
+  de .stem ANTES de que otros skills corran. Detecta tipo de proyecto
+  automáticamente. SIEMPRE usar este skill cuando el entorno parece mal,
+  falta una herramienta, la validación falla inesperadamente, git está en
+  mal estado, o antes de iniciar un workflow complejo. Triggers: "preflight",
+  "check environment", "verificar entorno", "que falta", "why is this failing",
+  "pre-check" — incluso si el usuario no pide un chequeo de entorno e incluso
+  si el error parece no estar relacionado con el entorno. También corre como
+  gate antes de otros skills con --for <skill>.
 user-invocable: true
 argument-hint: "[--full | --quick | --for <skill>]"
 allowed-tools:

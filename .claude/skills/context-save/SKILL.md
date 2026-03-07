@@ -1,12 +1,16 @@
 ---
 name: context-save
 description: |
-  Cross-session context persistence using rootline as data layer. Saves and
-  restores session context as structured markdown with YAML frontmatter.
-  Use when the user says "save context", "save session", "context-save",
-  "restore context", "resume session", "what was I doing", "pick up where
-  I left off", "list sessions", "session history", "continue previous work",
-  or any variation of preserving/recovering work state across sessions.
+  Guardar y restaurar estado de sesión estructurado entre sesiones usando
+  rootline como capa de datos. Crea snapshots markdown con YAML frontmatter
+  capturando trabajo activo, decisiones, estado git, y próximos pasos. Usar
+  este skill siempre que el usuario diga "guardar contexto", "save context",
+  "save session", "guardar progreso", "retomar", "pick up where I left off",
+  "resume", "ya terminé por hoy", "list sessions", o cualquier variación de
+  preservar/recuperar estado de trabajo — incluso si no dice "context-save"
+  explícitamente, e incluso si solo dice "ya acabé por hoy" o "save my
+  progress." Para buscar en el historial de conversaciones pasadas, usar
+  sessions en su lugar.
 user-invocable: true
 argument-hint: "[save | restore | list]"
 allowed-tools:

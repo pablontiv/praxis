@@ -1,6 +1,14 @@
 ---
 name: test-loop
-description: "Run tests, parse failures, group by root cause, suggest fixes, and re-run. Use this when the user says: run tests, fix tests, test loop, tests failing, test-fix cycle, run test suite, why are tests failing, debug test failures, make tests pass, rerun tests, failing tests, broken tests, test errors."
+description: |
+  Test runner inteligente que parsea fallos, agrupa por causa raíz, sugiere
+  fixes, y re-ejecuta hasta que pasan. Detecta framework automáticamente
+  (go, npm, cargo, pytest). Usar este skill siempre que el usuario diga:
+  correr tests, arreglar tests, tests fallando, por que fallan los tests,
+  hacer pasar los tests, run tests, fix tests, debug test failures, broken
+  tests, test errors, CI errors — incluso si no dice "test loop" e incluso
+  si solo pega un error de CI, dice "algo está roto", o menciona que el
+  build falló.
 user-invocable: true
 argument-hint: "[path] [--once]"
 ---
