@@ -87,6 +87,28 @@ rootline query .claude/session-state/ --where "proyecto == '$(basename $(pwd))'"
 rootline query .claude/session-state/ --where "proyecto == '$(basename $(pwd))'" --output table --limit 1
 ```
 
+Additionally, show the current state of the project's R&D and planning artifacts:
+
+```bash
+# Active discover lines
+rootline query lines/ --where 'tipo == "question"' --output table 2>/dev/null
+
+# Active investigations
+rootline query . --where 'metodo == "hypothesize"' --output table 2>/dev/null
+
+# Roadmap progress (if configured)
+if [ -f .claude/roadmap.local.md ]; then
+  ROADMAP_ROOT=$(grep 'roadmap-root:' .claude/roadmap.local.md | awk '{print $2}')
+  rootline stats "$ROADMAP_ROOT" --output table 2>/dev/null
+  rootline tree "$ROADMAP_ROOT" --output table 2>/dev/null
+fi
+
+# Theories
+rootline query theories/ --output table 2>/dev/null
+```
+
+Present this alongside session-state data for a complete recovery picture: what was the conversation about (session-state) and where does the project stand right now (live rootline data).
+
 This supplements (not replaces) the .jsonl session search. Rootline session-state has structured metadata (branch, active work, decisions, next steps) while .jsonl has full conversation history.
 
 ## Modos de uso

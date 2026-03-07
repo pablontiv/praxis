@@ -51,6 +51,26 @@ command -v rootline
 
 If not found, skip all `rootline validate` steps below. All other behavior (phases, document structure, checklists) remains unchanged.
 
+## Cross-referencing related work
+
+When creating a new investigation (CREAR mode) or continuing one (SEGUIMIENTO mode), use rootline to find related existing work. This prevents duplicate investigations and surfaces relevant context:
+
+```bash
+# Find related discover lines by scanning question files
+rootline query lines/ --where 'tipo == "question"' --output table 2>/dev/null
+
+# Find existing hypothesize investigations
+rootline query . --where 'metodo == "hypothesize"' --output table 2>/dev/null
+
+# Find closed lines that may have covered this topic
+rootline query closed/ --where 'tipo == "closure"' --output table 2>/dev/null
+
+# Find related theories
+rootline query theories/ --output table 2>/dev/null
+```
+
+If related work exists, inform the user before proceeding: show what was found, where it is, and ask whether to reference it or proceed independently.
+
 ## Frontmatter schema
 
 Investigation documents should live in directories with a `.stem` schema that validates their frontmatter:

@@ -95,7 +95,27 @@ git log --oneline -1 2>/dev/null || echo "no commits"
 git status --porcelain 2>/dev/null
 ```
 
-Additionally, synthesize from the current conversation:
+Additionally, capture rootline project state (if rootline-managed directories exist):
+
+```bash
+# Discover state: active lines, theories, backlog
+rootline query lines/ --where 'tipo == "question"' --output table 2>/dev/null
+rootline query theories/ --output table 2>/dev/null
+rootline query backlog/ --count 2>/dev/null
+
+# Roadmap state: pending items
+if [ -f .claude/roadmap.local.md ]; then
+  ROADMAP_ROOT=$(grep 'roadmap-root:' .claude/roadmap.local.md | awk '{print $2}')
+  rootline stats "$ROADMAP_ROOT" --output json 2>/dev/null
+fi
+
+# Hypothesize state: active investigations
+rootline query . --where 'metodo == "hypothesize"' --output table 2>/dev/null
+```
+
+Include any non-empty results in the session document under a `## Project State` section.
+
+Also synthesize from the current conversation:
 - **Active work**: What was being done in this session (summarize in 1-2 sentences)
 - **Key decisions**: Any decisions made during the session (bulleted list)
 - **Blockers or next steps**: What should happen next (bulleted list)
@@ -141,6 +161,10 @@ estado: saved
 ## Last Commit
 
 <short-hash> <subject>
+
+## Project State
+
+<Active discover lines, theories, roadmap progress, hypothesize investigations — from rootline queries. Omit section if no rootline-managed directories exist.>
 
 ## Next Steps
 

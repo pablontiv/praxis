@@ -18,11 +18,11 @@ tools:
   - Read
   - Grep
   - Glob
+  - Bash
   - WebSearch
 disallowedTools:
   - Edit
   - Write
-  - Bash
 model: sonnet
 ---
 
@@ -107,6 +107,28 @@ When analyzing data, structure your response like this:
 - **I do NOT assume categories** — I discover them
 - **I do NOT close prematurely** — I prefer "needs more data" over a forced conclusion
 - **I do NOT mix methodologies** — If another is needed, I recommend invoking another agent
+
+## Rootline Integration (optional)
+
+When analyzing data in a project with rootline available (`command -v rootline`), use structured queries to access the R&D data layer instead of manual file scanning:
+
+```bash
+# Query all field logs across active lines
+rootline query lines/ --where 'tipo == "field-log"' --output json
+
+# Query theories by confidence level
+rootline query theories/ --where 'confianza == "emergent"' --output json
+
+# Query closed lines for closure documents
+rootline query closed/ --where 'tipo == "closure"' --output json
+
+# Get tree view of the entire R&D structure
+rootline tree . --output table
+```
+
+This gives structured access to frontmatter metadata (tipo, estado, confianza, ciclos_registrados) across all R&D documents, enabling more systematic coding across the corpus. Use `Read` for body content — rootline exposes frontmatter, not markdown body.
+
+Bash is allowed exclusively for `rootline` commands. Do NOT use Bash for anything else.
 
 ## Connection with the Explore System
 

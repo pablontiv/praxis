@@ -102,106 +102,11 @@ Rootline is the data layer for discover. It reads YAML frontmatter from .md file
 
 ## Subcommand: init
 
-Initialize an R&D project in the current directory.
+Initialize an R&D project in the current directory. Creates directory structure (intake/, backlog/, lines/, theories/, paused/, closed/, shared/), copies templates, generates MAP.md and state files.
 
-### Process
+**Args**: `[project-name]` — optional.
 
-1. **Validate**: Check if `MAP.md` already exists. If yes, warn and ask to confirm overwrite.
-
-2. **Create directory structure**:
-```
-intake/
-backlog/
-lines/
-theories/
-paused/
-closed/
-shared/code/
-shared/patterns/
-shared/templates/
-.claude/rules/
-```
-
-**intake/** is the reference library for the discover framework. Files arrive here via `/discover @file` and stay while they're being investigated. Lines, backlog items, and theories reference intake docs via `[[intake/name]]` wikilinks. A file leaves `intake/` only when it graduates out of discover entirely — to `/hypothesize` (formal falsification) or `/roadmap` (implementation decomposition).
-
-3. **Copy templates** from [templates/](templates/) to `shared/templates/`:
-   - [QUESTION.md](templates/QUESTION.md)
-   - [FIELD-LOG.md](templates/FIELD-LOG.md)
-   - [CLOSURE.md](templates/CLOSURE.md)
-   - [THEORY.md](templates/THEORY.md)
-
-4. **Copy FRAMEWORK.md**: Copy [FRAMEWORK.md](templates/FRAMEWORK.md) to project root as methodology reference.
-
-5. **Suggest CLAUDE.md setup**: If the project doesn't have a CLAUDE.md, suggest the user create one referencing the generated `.claude/rules/` files. Do not auto-generate — users should own their CLAUDE.md.
-
-6. **Generate state files**:
-
-   `.claude/rules/current-state.md`:
-   ```markdown
-   # Current State
-   > Last updated: [today's date]
-   ## Active Lines
-   (none yet)
-   ## Paused Lines
-   (none)
-   ## Closed Lines
-   (none)
-   ## Last Session
-   - [today's date]: Project initialized
-   ```
-
-   `.claude/rules/connections.md`:
-   ```markdown
-   # Discovered Connections
-   ## Between Lines
-   (no connections yet)
-   ## Emergent Patterns
-   (no patterns yet)
-   ## Connections with Theories
-   (none yet)
-   ```
-
-7. **Generate MAP.md** at project root:
-   ```markdown
-   # System Map
-   > Last updated: [today's date]
-   ## Structure
-   ### /intake (Reference library)
-   | Document | Classification | Referenced by |
-   |----------|---------------|---------------|
-   (empty)
-   ### /backlog (Unexplored questions)
-   | Question | Topic |
-   |----------|-------|
-   (empty)
-   ### /lines (Active lines of inquiry)
-   | Line | Central question | Cycles | Status |
-   |------|-----------------|--------|--------|
-   (none yet)
-   ### /theories (Emergent theories)
-   | Theory | Confidence | Connections |
-   |--------|-----------|-------------|
-   (none yet)
-   ### /paused
-   (none)
-   ### /closed
-   (none)
-   ### /shared (Reusable artifacts)
-   - /code: [empty]
-   - /patterns: [empty]
-   - /templates: QUESTION.md, FIELD-LOG.md, CLOSURE.md, THEORY.md
-   ## Known Connections
-   (none yet)
-   ## Emergent Patterns
-   (none yet)
-   ## Current Context
-   - **Active lines**: 0/3
-   - **Last session**: [today's date] — Project initialized
-   ```
-
-8. **Confirm** to user with summary of what was created and next steps: `/discover new-line [name]`, `/discover status`.
-
-**Notes**: Only creates structure — never overwrites existing line data. Templates are copied to the project so they can be customized per-project.
+See [ref-init.md](ref-init.md) for the full procedure.
 
 ---
 
@@ -537,78 +442,11 @@ Research a topic using web search and synthesize.
 
 ## Subcommand: intake
 
-Analyze an external file and classify it into the appropriate flow entry point.
+Analyze an external file (`@path/to/file`) and classify it into the appropriate flow entry point (discover line, backlog, hypothesize, roadmap). Extracts 7 signals, runs anti-presupposition scan, suggests adaptations.
 
 **Trigger**: `$ARGUMENTS` starts with `@`. Strip the `@` to get the file path.
 
-### Process
-
-1. **Read the file** completely. If it doesn't exist, inform the user.
-
-2. **Fast-path check**: If the file has markers from existing skills, it's NOT external — redirect:
-   - `> Estado: Fase N` → already a `/hypothesize` document → suggest `/hypothesize [file]`
-   - QUESTION.md/FIELD-LOG.md template markers → already a `/discover` artifact → suggest the appropriate subcommand
-   - Roadmap frontmatter (`tipo:`, `estado:`, `epic:`) → already a `/roadmap` artifact → suggest `/roadmap pending` or `/roadmap loop`
-
-3. **Extract 7 signals**: See [intake-signals.md](intake-signals.md) — "Signal Extraction" section.
-   Each signal is deterministic and observable — count sections, scan for patterns, check extension. No interpretation.
-
-4. **Classify**: Map signals to entry point using the mapping table in [intake-signals.md](intake-signals.md) — "Entry Point Mapping" section. If ambiguous, apply **Glaser Test** (same section).
-
-5. **Anti-presupposition scan**: Run the anti-presupposition process on the file content.
-   See [anti-presupposition.md](anti-presupposition.md) — steps 2-3 (detect presuppositions + observational reformulation).
-   Focus on: what does the document assume without validating?
-
-6. **Suggest adaptations**: Based on entry point, describe what the file needs to enter the flow.
-   See [intake-signals.md](intake-signals.md) — "Adaptation Templates" section.
-
-7. **Present results**: Show signal profile, classification, presuppositions, adaptations, and recommended command. Always include alternatives so the user can override.
-
-### Output format
-
-```
-INTAKE — [filename]
-═══════════════════
-
-SIGNALS:
-  Format:        [value]
-  Structure:     [value] ([detail])
-  Assertions:    [value] ([count] claims, [count] questions)
-  Evidence:      [value] ([detail])
-  Actionability: [value] ([detail])
-  Domain:        [value] ([named items])
-  Completeness:  [value] ([detail])
-
-CLASSIFICATION: [entry point]
-Confidence: [high/medium/low]
-
-PRESUPPOSITIONS DETECTED:
-├─ "[claim]" — [why it's a presupposition]
-├─ "[claim]" — [why]
-└─ "[claim]" — [why]
-
-SUGGESTED ADAPTATIONS:
-1. [adaptation]
-2. [adaptation]
-N. [adaptation]
-
-COMMAND: [recommended command]
-
-ALTERNATIVES:
-  [alternative 1] — [when to choose this instead]
-  [alternative 2] — [when to choose this instead]
-```
-
-### Edge cases
-
-- **Binary files** (images, PDFs): Format = binary → always CONTEXT
-- **Very short files** (<5 lines): Treat as a topic → BACKLOG
-- **Empty files**: Inform user, suggest starting with `/discover new-line` instead
-- **Code files**: Classification = CONTEXT — suggest attaching as evidence to an existing line
-
-**Notes**: Intake never auto-executes a skill — it classifies, suggests, and hands off. The user decides.
-
-**File lifecycle**: After classification, the original file stays in `intake/`. Generated artifacts (lines, backlog entries) reference it via `[[intake/name]]` wikilinks. The file leaves `intake/` only when the research graduates to `/hypothesize` or `/roadmap`. One intake file can generate multiple artifacts (lines, backlog items, theories) — this is expected.
+See [ref-intake.md](ref-intake.md) for the full procedure, output format, and edge cases.
 
 ---
 
