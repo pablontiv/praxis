@@ -16,7 +16,7 @@ Framework portable de investigación estructurada y planificación para Claude C
 | `/discover [sub]` | R&D: init, new-line, cycle, reflect, theory, status, update-map, interlink, review-patterns, research, @file |
 | `/hypothesize [tema]` | Investigación estructurada de 5 fases con trazabilidad lógica |
 | `/roadmap [args]` | Planificación AI-native: epics → features → stories → tasks |
-| `/sessions [keyword]` | Buscar en historial de sesiones de Claude Code |
+| `/backscroll [query]` | Buscar en historial de sesiones (FTS5 + BM25 via backscroll) |
 
 ## Agents Disponibles
 
@@ -26,6 +26,7 @@ Framework portable de investigación estructurada y planificación para Claude C
 ## Dependencias Externas
 
 - **`rootline` CLI**: Requerida por `/roadmap` (todos los subcomandos). Verificar con `command -v rootline` antes de ejecutar cualquier operación de roadmap. Si no está instalada → informar al usuario con instrucciones de instalación y **parar**. No simular rootline con lecturas manuales de archivos.
+- **`backscroll` CLI**: Requerida por `/backscroll` (búsqueda de sesiones). Verificar con `command -v backscroll`. Si no está instalada → `cd /opt/backscroll && cargo build --release && cp target/release/backscroll /usr/local/bin/backscroll`.
 
 ## Reglas de Edición
 

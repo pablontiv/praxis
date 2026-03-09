@@ -43,4 +43,4 @@ No es obligatorio seguir el flujo completo. Cada skill es independiente. El fluj
 | `/discover [subcommand]` | Indagación: init, new-line, cycle, reflect, theory, status, update-map, interlink, review-patterns, research, @file |
 | `/hypothesize [tema\|archivo]` | Investigación estructurada de 5 fases |
 | `/roadmap [args]` | Planificación: descomponer en epics/features/stories/tasks |
-| `/sessions [keyword]` | Buscar en historial de sesiones |
+| `/backscroll [query]` | Buscar en historial de sesiones (FTS5 + BM25) |
