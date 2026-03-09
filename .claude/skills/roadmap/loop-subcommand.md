@@ -1,4 +1,6 @@
-# /roadmap loop [--filter PATTERN] [--max N]
+# /roadmap loop [--filter PATTERN] [--max N] [--pr]
+
+> **Pre-requisito**: Leer [common-logic.md](common-logic.md) para auto-numbering, cascading links y comandos rootline.
 
 Ejecutar Tasks pendientes en loop con confirmacion entre cada uno.
 
@@ -7,6 +9,7 @@ Ejecutar Tasks pendientes en loop con confirmacion entre cada uno.
 - `--max N`: Limitar a N tasks
 - `--checkpoint-interval N`: Intervalo de tasks entre checkpoints de calidad (default 5)
 - `--skip-reviews`: Desactivar quality gates (security review y checkpoint review)
+- `--pr`: Crear feature branch por Story y PR por Story (requiere `gh` CLI). Sin este flag, push directo al branch actual.
 
 ## Fase 1: Discovery
 
@@ -31,6 +34,12 @@ Para cada task encontrada, crear entrada con `TaskCreate`:
 
 Mostrar TodoList con `TaskList`.
 
+## Fase 2.5: Branch & PR Setup
+
+Solo si `--pr`. Sin este flag → skip esta fase entera (push directo al branch actual).
+
+Si `--pr` → leer [pr-workflow.md](pr-workflow.md) y ejecutar **Branch & PR Detection**.
+
 ## Fase 3: Loop de Ejecucion
 
 **Variables de estado del loop:**
@@ -38,6 +47,15 @@ Mostrar TodoList con `TaskList`.
 - `checkpoint_task_count`: Contador de tasks desde ultimo checkpoint (inicializar en 0)
 - `current_story_path`: Path de la Story actual (para detectar cambio de contexto)
 - `checkpoint_interval`: Intervalo entre checkpoints (default 5, configurable con --checkpoint-interval)
+
+### Story context change (trigger: cambio de Story)
+
+Al detectar que el task actual pertenece a una Story diferente a `current_story_path`:
+
+- **Default (push directo)**: Solo actualizar `current_story_path`, continuar normalmente.
+- **`--pr` mode**: Ejecutar **Story Setup** de [pr-workflow.md](pr-workflow.md).
+
+---
 
 Para cada task en orden:
 
@@ -83,13 +101,15 @@ Para cada task en orden:
    - Si findings MEDIUM → warning informativo, continuar
    - Si nada o no aplica → continuar silenciosamente
 
-8. **Commit+Push** (centralizado, NO delegado a skills hijos):
+8. **Commit** (centralizado, NO delegado a skills hijos):
    - Identificar archivos modificados/creados por la implementacion
    - `git add` archivos relevantes (especificos, no `git add .`)
    - `git commit` con mensaje en formato **conventional commits**: `type(scope): description`
      - Elegir `type` segun el contenido del task: `feat` (nueva funcionalidad), `fix` (correccion), `test` (tests), `docs` (documentacion), `refactor` (reestructuracion), `ci` (CI/CD), `chore` (mantenimiento), `perf` (rendimiento), `style` (formato)
      - El hook `.githooks/commit-msg` rechazara mensajes que no sigan el formato
-   - `git push`
+   - **Push policy**:
+     - **Default (push directo)**: Push inmediato tras commit: `git push`
+     - **`--pr` mode**: NO push aqui. Push ocurre en Story PR ([pr-workflow.md](pr-workflow.md)).
 
 9. **Marcar completado**: `TaskUpdate` → status: `completed`
 
@@ -106,7 +126,7 @@ Para cada task en orden:
 11. **Checkpoint Detection** (post-resumen, pre-confirmacion):
     - Incrementar `checkpoint_task_count`
     - Triggers (OR — cualquiera activa el checkpoint):
-      a) **Story context change**: siguiente task pertenece a otra Story (`current_story_path` diferente)
+      a) **Story context change**: siguiente task pertenece a otra Story — si `--pr`, triggers Story Setup + Story PR ([pr-workflow.md](pr-workflow.md))
       b) **Safety net**: `checkpoint_task_count >= checkpoint_interval` (default 5)
       c) **Loop interrumpido**: usuario elige "Parar" en la confirmacion
     - Al activar checkpoint:
@@ -114,6 +134,9 @@ Para cada task en orden:
       2. Ejecutar `/review` sobre el diff acumulado
       3. Reportar findings (informativos, **no bloquean** el loop)
       4. Registrar nuevo checkpoint: `checkpoint_commit = HEAD`, `checkpoint_task_count = 0`
+      5. Si trigger fue Story context change y `--pr` → ejecutar **Story PR** de [pr-workflow.md](pr-workflow.md) antes de continuar
+
+> **Al terminar el loop** (todos los tasks procesados o usuario dice "Parar"): si `--pr` y hay commits pendientes en el feature branch actual → ejecutar **Story PR** de [pr-workflow.md](pr-workflow.md).
 
 12. **Confirmar**: `AskUserQuestion` con opciones:
     - Si, continuar (Recommended)
@@ -133,6 +156,10 @@ RESUMEN LOOP
 ├─ ACs: total passed / total
 ├─ Security reviews: N ejecutados, M findings (H: X, M: Y)
 ├─ Quality checkpoints: N ejecutados, M findings
+├─ Pull Requests: (solo --pr)
+│  ├─ #42 S043-multi-path-config — MERGED
+│  ├─ #43 S044-directory-discovery — MERGED
+│  └─ #44 S045-resume-subcommand — OPEN (CI pending)
 ├─ Commits: lista de hashes
 └─ Tasks restantes: lista (si las hay)
 ```

@@ -1,5 +1,7 @@
 # /roadmap plan
 
+> **Pre-requisito**: Leer [common-logic.md](common-logic.md) para auto-numbering, cascading links y comandos rootline.
+
 Tomar el plan de la conversacion actual y descomponerlo en estructura de roadmap.
 
 **Cuando usar**: Despues de que una sesion produce un plan tecnico (investigacion, analisis, fix propuesto, etc.) y se quiere estructurar como roadmap.
