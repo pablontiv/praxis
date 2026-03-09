@@ -21,8 +21,11 @@ shared/
 # Agent worktrees (ephemeral)
 .claude/worktrees/
 
+# Runtime databases
+*.db
+*.db-shm
+*.db-wal
+
 # Build / deps
-dashboard/node_modules/
-dashboard/.next/
 __pycache__/
 *.pyc
