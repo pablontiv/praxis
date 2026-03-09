@@ -229,6 +229,49 @@ Output lines:
 [⚠] Schema: theories/.stem missing — discover docs won't validate
 ```
 
+#### 3f. Kubernetes Health (TYPE:k8s, --full, --for workload)
+
+Only if `kubectl` is available AND project type includes k8s. Uses `KUBECONFIG=~/.kube/config-k3s`.
+
+```bash
+# 1. Pods not ready or in bad state (excludes Completed/Succeeded jobs)
+KUBECONFIG=~/.kube/config-k3s kubectl get pods -A --no-headers 2>/dev/null | awk '$4 != "Running" && $4 != "Completed" && $4 != "Succeeded" {print $1"/"$2": "$4}'
+
+# 2. Pods with containers not ready (READY column mismatch, e.g. 0/1)
+KUBECONFIG=~/.kube/config-k3s kubectl get pods -A --no-headers 2>/dev/null | awk -F'[ /]+' '$3 != $4 && $5 != "Completed" && $5 != "Succeeded" {print $1"/"$2": "$3"/"$4" ready"}'
+
+# 3. Pods with high restart count (>5)
+KUBECONFIG=~/.kube/config-k3s kubectl get pods -A --no-headers 2>/dev/null | awk '$5 > 5 {print $1"/"$2": "$5" restarts"}'
+
+# 4. HelmReleases not Ready
+KUBECONFIG=~/.kube/config-k3s kubectl get helmreleases -A --no-headers 2>/dev/null | awk '$3 != "True" {print $1"/"$2": Ready="$3}'
+
+# 5. PVCs not Bound
+KUBECONFIG=~/.kube/config-k3s kubectl get pvc -A --no-headers 2>/dev/null | awk '$3 != "Bound" {print $1"/"$2": "$3}'
+
+# 6. Services without endpoints
+KUBECONFIG=~/.kube/config-k3s kubectl get endpoints -A --no-headers 2>/dev/null | awk '$2 == "<none>" {print $1"/"$2": no endpoints"}'
+
+# 7. Flux sources not ready (GitRepository, HelmRepository)
+KUBECONFIG=~/.kube/config-k3s kubectl get gitrepositories,helmrepositories -A --no-headers 2>/dev/null | awk '$3 != "True" {print $1"/"$2": Ready="$3}'
+```
+
+Interpret results:
+- Any pods not ready or high restarts → **warning** (not error — could be transient)
+- Any HelmReleases not Ready → **error** (indicates failed deployment)
+- Any PVCs not Bound → **error** (workload likely broken)
+- Services without endpoints → **warning** (could be scaling to zero)
+- Flux sources not ready → **error** (GitOps pipeline broken)
+
+Output lines:
+```
+[✓] k8s: All pods healthy, 0 high-restart, 0 not-ready
+[✗] k8s: 1 HelmRelease not Ready — media/jellyfin: Ready=False
+[⚠] k8s: 2 pods with high restarts — monitoring/prometheus-0: 8 restarts
+[✓] k8s: All PVCs Bound, all Flux sources Ready
+[⚠] k8s: 1 Service without endpoints — dev/test-svc
+```
+
 #### Skill-specific additional checks (`--for <skill>`)
 
 | Skill | Additional checks beyond CLIs and schemas |
@@ -268,6 +311,7 @@ PREFLIGHT — [project-name]
 [✓] Rootline: 15/15 files valid, 0 errors
 [⚠] Schema: lines/.stem missing — discover docs won't validate
 [✓] Project: CLAUDE.md present, .claude/rules/ (3 files)
+[✓] k8s: All pods healthy, HelmReleases Ready, PVCs Bound, Flux sources Ready
 
 RESULT: 1 error, 1 warning — fix errors before proceeding
 
@@ -291,6 +335,11 @@ When reporting errors or warnings, include a concrete fix when possible:
 | rootline validation errors | `rootline fix --all .` |
 | .stem missing | `rootline init <dir>` to infer schema from existing files |
 | CLAUDE.md missing | Create with project description |
+| HelmRelease not Ready | `kubectl describe helmrelease -n NS NAME` for error details |
+| PVC not Bound | Check PV exists and `claimRef` matches; check StorageClass |
+| Pods high restarts | `kubectl logs -n NS POD --previous` for crash reason |
+| Flux source not Ready | `kubectl describe gitrepository/helmrepository -n flux-system` |
+| Service no endpoints | Check pod selector matches, pod is Ready |
 
 ---
 
