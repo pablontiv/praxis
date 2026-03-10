@@ -1,0 +1,57 @@
+# Rust ecosystem metadata for /conform templates
+ecosystem: cargo
+language: rust
+marker_file: Cargo.toml
+file_ext: "*.rs"
+
+# Quality commands
+fmt_check: "cargo fmt --all -- --check"
+fmt_fix: "cargo fmt --all"
+lint_cmd: "cargo clippy --all-targets --all-features -- -D warnings"
+test_cmd: "cargo test --all-features"
+vuln_cmd: "cargo deny check licenses bans advisories"
+build_cmd: "cargo check --all"
+tidy_cmd: ""
+
+# Release
+build_release_cmd: "cargo build --release"
+version_file: "Cargo.toml"
+version_pattern: '^version = ".*"'
+version_replace: 'version = "{{VERSION}}"'
+
+# CI-specific
+setup_action: "dtolnay/rust-toolchain"
+setup_with: "toolchain: stable"
+lint_action: ""
+vuln_install: "cargo install cargo-deny"
+release_tool: cargo
+tidy_check: ""
+
+# Editor config
+indent_style: space
+indent_size: 4
+
+# Pre-commit hook
+pre_commit_format: |
+  echo "Running cargo fmt --check..."
+  if ! cargo fmt --all -- --check 2>&1; then
+    echo "ERROR: Code not formatted. Run: cargo fmt --all"
+    exit 1
+  fi
+pre_commit_lint: |
+  echo "Running cargo clippy..."
+  if ! cargo clippy --all-targets --all-features -- -D warnings 2>&1; then
+    echo "ERROR: Clippy warnings found. Fix before committing."
+    exit 1
+  fi
+
+# Justfile
+check_recipe: |
+  cargo fmt --all -- --check
+  cargo clippy --all-targets --all-features -- -D warnings
+  cargo check --all
+test_recipe: "cargo test --all-features"
+fmt_recipe: "cargo fmt --all"
+
+# Minimum version
+min_version: "Rust 1.85+"
