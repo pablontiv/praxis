@@ -9,7 +9,7 @@ Ejecutar Tasks pendientes en loop con confirmacion entre cada uno.
 - `--max N`: Limitar a N tasks
 - `--checkpoint-interval N`: Intervalo de tasks entre checkpoints de calidad (default 5)
 - `--skip-reviews`: Desactivar quality gates (security review y checkpoint review)
-- `--pr`: Crear feature branch por Story y PR por Story (requiere `gh` CLI). Sin este flag, push directo al branch actual.
+- `--pr`: Crear feature branch por Story y PR por Story (requiere `gh` CLI). Sin este flag, push depende de `<auto-push>` config.
 
 ## Workspace mode
 
@@ -53,7 +53,7 @@ Mostrar TodoList con `TaskList`.
 
 ## Fase 2.5: Branch & PR Setup
 
-Solo si `--pr`. Sin este flag → skip esta fase entera (push directo al branch actual).
+Solo si `--pr`. Sin este flag → skip esta fase entera (push depende de `<auto-push>`).
 
 Si `--pr` → leer [pr-workflow.md](pr-workflow.md) y ejecutar **Branch & PR Detection**.
 
@@ -69,7 +69,7 @@ Si `--pr` → leer [pr-workflow.md](pr-workflow.md) y ejecutar **Branch & PR Det
 
 Al detectar que el task actual pertenece a una Story diferente a `current_story_path`:
 
-- **Default (push directo)**: Solo actualizar `current_story_path`, continuar normalmente.
+- **Default (sin `--pr`)**: Solo actualizar `current_story_path`, continuar normalmente.
 - **`--pr` mode**: Ejecutar **Story Setup** de [pr-workflow.md](pr-workflow.md).
 
 ---
@@ -125,12 +125,15 @@ Para cada task en orden:
 8. **Commit** (centralizado, NO delegado a skills hijos):
    - Identificar archivos modificados/creados por la implementacion
    - `git add` archivos relevantes (especificos, no `git add .`)
-   - `git commit` con mensaje en formato **conventional commits**: `type(scope): description`
-     - Elegir `type` segun el contenido del task: `feat` (nueva funcionalidad), `fix` (correccion), `test` (tests), `docs` (documentacion), `refactor` (reestructuracion), `ci` (CI/CD), `chore` (mantenimiento), `perf` (rendimiento), `style` (formato)
-     - El hook `.githooks/commit-msg` rechazara mensajes que no sigan el formato
-   - **Push policy**:
-     - **Default (push directo)**: Push inmediato tras commit: `git push`
-     - **`--pr` mode**: NO push aqui. Push ocurre en Story PR ([pr-workflow.md](pr-workflow.md)).
+   - **Formato del mensaje** (segun `<commit-style>`):
+     - **`conventional`** (default): `type(scope): description`
+       - Elegir `type` segun el contenido del task: `feat` (nueva funcionalidad), `fix` (correccion), `test` (tests), `docs` (documentacion), `refactor` (reestructuracion), `ci` (CI/CD), `chore` (mantenimiento), `perf` (rendimiento), `style` (formato)
+       - El hook `.githooks/commit-msg` rechazara mensajes que no sigan el formato
+     - **`terse`**: descripcion corta en minusculas, sin type ni scope. Ej: `add user validation`, `fix retry logic on timeout`. Maximo ~50 caracteres.
+   - **Push policy** (segun `<auto-push>` y `--pr`):
+     - **`<auto-push>: true` (default), sin `--pr`**: Push inmediato tras commit: `git push`
+     - **`<auto-push>: false`, sin `--pr`**: NO push. Los commits se acumulan localmente.
+     - **`--pr` mode** (independiente de `<auto-push>`): NO push aqui. Push ocurre en Story PR ([pr-workflow.md](pr-workflow.md)).
 
 9. **Marcar completado**: `TaskUpdate` → status: `completed`
 

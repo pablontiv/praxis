@@ -93,6 +93,8 @@ active-statuses: ['Pending', 'Specified', 'In Progress']
 leaf-filter: 'isIndex == false'
 story-close-verify: []
 pr-merge-strategy: 'squash'
+commit-style: 'conventional'
+auto-push: true
 ---
 ```
 
@@ -107,6 +109,8 @@ En todo este documento, `<roadmap-root>` se refiere al valor configurado.
 | `leaf-filter` | `'isIndex == false'` | `<leaf-filter>` |
 | `story-close-verify` | `[]` | `<story-close-cmds>` |
 | `pr-merge-strategy` | `'squash'` | `<pr-merge-strategy>` |
+| `commit-style` | `'conventional'` | `<commit-style>` |
+| `auto-push` | `true` | `<auto-push>` |
 
 Expresiones helper (pre-computar una vez, reusar en todos los comandos):
 

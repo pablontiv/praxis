@@ -20,9 +20,9 @@ Lógica de branching, PR creation, y merge para `/roadmap loop --pr`.
    ```bash
    command -v gh && gh auth status
    ```
-   Si no disponible → warning, degradar a push directo automáticamente:
-   > "`gh` CLI no disponible o no autenticado. Degradando a push directo (sin PR)."
-   → Volver a loop-subcommand.md y seguir como default (push directo).
+   Si no disponible → warning, degradar a modo sin PR automáticamente:
+   > "`gh` CLI no disponible o no autenticado. Degradando a modo sin PR."
+   → Volver a loop-subcommand.md y seguir como default (push segun `<auto-push>`).
 3. Registrar `base_branch` en variables de estado.
 
 ## Variables de estado adicionales (PR mode)

@@ -144,9 +144,33 @@ Requiere [`rootline` CLI](#dependencias) — no opera sin ella.
 
 ## Configuración por Proyecto
 
-### roadmap-root
+Crear `.claude/roadmap.local.md` en la raíz del proyecto. Todas las opciones
+tienen defaults sensibles — solo configurar lo que difiera.
 
-Crear `.claude/roadmap.local.md` en el proyecto:
+### Opciones
+
+| Opción | Default | Descripción |
+|--------|---------|-------------|
+| `roadmap-root` | *(requerido)* | Path al directorio de epics (ej: `docs/epics`) |
+| `done-statuses` | `['Completed', 'Obsolete']` | Valores de `estado` que marcan un task/story como terminado |
+| `active-statuses` | `['Pending', 'Specified', 'In Progress']` | Valores de `estado` que marcan trabajo en progreso |
+| `leaf-filter` | `'isIndex == false'` | Filtro rootline para excluir index files (READMEs) |
+| `story-close-verify` | `[]` | Comandos a ejecutar al cerrar una Story para verificar completitud |
+| `pr-merge-strategy` | `'squash'` | Estrategia de merge para PRs: `squash`, `rebase`, o `merge` |
+| `commit-style` | `'conventional'` | Formato de commit. Ver [Commit styles](#commit-styles) |
+| `auto-push` | `true` | Push automático tras cada commit (sin `--pr`). `false` acumula commits localmente |
+
+### Commit styles
+
+| Valor | Formato | Ejemplo |
+|-------|---------|---------|
+| `conventional` | `type(scope): description` | `feat(auth): add JWT validation` |
+| `terse` | descripción corta, sin type/scope | `add jwt validation` |
+
+Con `conventional`, el hook `.githooks/commit-msg` valida el formato.
+Con `terse`, no se espera hook de formato.
+
+### Ejemplo mínimo
 
 ```yaml
 ---
@@ -154,7 +178,34 @@ roadmap-root: docs/epics
 ---
 ```
 
-Define dónde vive la jerarquía del roadmap. Usado por `/roadmap` y `sdd-validator`.
+### Ejemplo completo
+
+```yaml
+---
+roadmap-root: docs/epics
+done-statuses: ['Completed', 'Obsolete']
+active-statuses: ['Pending', 'Specified', 'In Progress']
+leaf-filter: 'isIndex == false'
+story-close-verify: ['just test', 'just check']
+pr-merge-strategy: 'squash'
+commit-style: 'conventional'
+auto-push: true
+---
+
+## Tipos de task
+
+### research-document
+
+```yaml
+fuentes: # URLs o papers consultados
+hallazgos: # resumen de findings
+```
+```
+
+### Tipos de task (body del archivo)
+
+El body markdown de `roadmap.local.md` puede definir tipos de task con templates
+YAML project-specific. Si no se definen, se usan los templates genéricos del skill.
 
 ### State files (generados automáticamente)
 
