@@ -2,15 +2,19 @@
 
 Lógica de branching, PR creation, y merge para `/roadmap loop --pr`.
 
+> **Workspace mode**: Todos los `git` commands en este archivo usan `git -C <repo-path>`.
+> En single-repo mode, `<repo-path>` = `.` (equivalente a `git` sin `-C`).
+> `gh` commands se ejecutan desde `<repo-path>`: `cd <repo-path> && gh pr create ...`
+
 ## Branch & PR Detection
 
 1. **Detectar base branch**:
    ```bash
-   git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@'
+   git -C <repo-path> symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@'
    ```
    Fallback: probar `main`, luego `master`:
    ```bash
-   git rev-parse --verify origin/main 2>/dev/null && echo main || echo master
+   git -C <repo-path> rev-parse --verify origin/main 2>/dev/null && echo main || echo master
    ```
 2. **Verificar `gh` CLI**:
    ```bash
@@ -35,9 +39,9 @@ Al detectar que el task actual pertenece a una Story diferente a `current_story_
    - Ej: `feat/S043-multi-path-config` (slug = título de la Story en kebab-case, max 40 chars)
 3. Crear feature branch desde base actualizado:
    ```bash
-   git checkout <base_branch>
-   git pull origin <base_branch>
-   git checkout -b feat/<story-id>-<story-slug>
+   git -C <repo-path> checkout <base_branch>
+   git -C <repo-path> pull origin <base_branch>
+   git -C <repo-path> checkout -b feat/<story-id>-<story-slug>
    ```
 4. Actualizar `current_story_path` y registrar branch activo
 
@@ -48,7 +52,7 @@ Se activa cuando el checkpoint detecta cambio de Story O cuando el loop termina.
 ### 1. Push branch
 
 ```bash
-git push -u origin feat/<story-id>-<story-slug>
+git -C <repo-path> push -u origin feat/<story-id>-<story-slug>
 ```
 
 ### 2. Crear PR
@@ -100,8 +104,8 @@ EOF
 ### 4. Post-merge cleanup
 
 ```bash
-git checkout <base_branch>
-git pull origin <base_branch>
+git -C <repo-path> checkout <base_branch>
+git -C <repo-path> pull origin <base_branch>
 ```
 Esto asegura que la siguiente Story parte del código actualizado.
 

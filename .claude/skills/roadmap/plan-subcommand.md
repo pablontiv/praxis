@@ -11,6 +11,16 @@ Tomar el plan de la conversacion actual y descomponerlo en estructura de roadmap
 2. Fallback: plan file de `~/.claude/plans/${CLAUDE_SESSION_ID}.md`
    (plan files son globales — usar `${CLAUDE_SESSION_ID}` para garantizar que sea de esta sesion)
 
+## Workspace mode
+
+En workspace mode, determinar el repo target antes de descomponer:
+1. Si `--repo` fue dado → usar ese repo
+2. Si el plan en conversación menciona un nombre que matchea un repo en `<repos>` → usar ese
+3. Si ambiguo → `AskUserQuestion`: "En qué repo se materializa este plan?"
+
+Una vez resuelto, usar `<abs-roadmap-root>` y `<repo-path>` de ese repo.
+Paso 7 (Commit+Push): `git -C <repo-path> add/commit/push`.
+
 ## Fase 1: Descomposicion
 
 1. Identificar el plan mas reciente:

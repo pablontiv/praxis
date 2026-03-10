@@ -2,6 +2,12 @@
 
 Pre-requisito compartido por `plan` y `loop`. Leer este archivo cuando se van a crear o modificar archivos del roadmap.
 
+> **Workspace mode**: En workspace mode, `<roadmap-root>` se reemplaza por
+> `<abs-roadmap-root>` (path absoluto desde `<repos>` table). rootline acepta
+> paths absolutos sin cambios. Los comandos `git` requieren `git -C <repo-path>`
+> para operar en el repo correcto. En single-repo mode, `<repo-path>` = `.`
+> (comportamiento sin cambios).
+
 ## Auto-numbering
 
 Para cada nivel, usar `rootline describe` con el campo `schema.id.next`:

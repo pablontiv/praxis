@@ -8,6 +8,11 @@ Ejecutar la seccion "Configuracion del Proyecto — Bootstrap Obligatorio" de SK
 
 ## Paso 1: Analisis de Intencion
 
+**Workspace mode**: Resolver repo target desde `$ARGUMENTS`.
+Si menciona un nombre que matchea un repo en `<repos>` (ej: "planificar backscroll E16") → usar ese repo y su config.
+Si no matchea ningún repo → `AskUserQuestion` para seleccionar repo.
+Una vez resuelto, usar `<abs-roadmap-root>` y `<repo-path>` de ese repo para todo el análisis.
+
 Leer `$ARGUMENTS` y determinar:
 - **Que proyecto/componente** se menciona
 - **Que profundidad** se pide (solo epics? hasta tasks?)

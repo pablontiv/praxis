@@ -84,6 +84,18 @@
         {"name": "pr-body-has-commits", "check": "PR body lists the commits/tasks completed for the Story"},
         {"name": "post-merge-checkout-base", "check": "After PR merge, checks out base branch and pulls before creating new branch"}
       ]
+    },
+    {
+      "id": 8,
+      "prompt": "/roadmap pending\n\nContexto: Ya existe .claude/roadmap.local.md con:\n---\nroadmap-root: docs/epics\ndone-statuses: ['Completado', 'Obsoleto']\nactive-statuses: ['Pending', 'Specified', 'In Progress']\nleaf-filter: 'isIndex == false'\n---\n\nrootline esta instalado. docs/epics/ tiene E01 con F01 (3 tasks Completado, 2 tasks Pending) y F02 (1 task Pending). Hay 15 READMEs (index files) de Epic, Feature y Story.\n\nNOTA: Este test verifica que /roadmap pending: (1) imprime los helpers computados del bootstrap, (2) usa isIndex == false en la query rootline, (3) reporta conteos basados en tasks reales (leaves) no inflados con index files, (4) usa los done-statuses del proyecto (Completado/Obsoleto en español, no Completed/Obsolete).",
+      "expected_output": "Prints computed helpers, uses isIndex == false, correct leaf-only counts, Spanish done-statuses",
+      "files": [],
+      "assertions": [
+        {"name": "prints-bootstrap-helpers", "check": "Output includes the computed helper expressions with actual values before running any query"},
+        {"name": "uses-isIndex-false", "check": "The rootline command includes isIndex == false in --where clause"},
+        {"name": "uses-project-done-statuses", "check": "Uses Completado/Obsoleto (from project config), not Completed/Obsolete (defaults)"},
+        {"name": "no-inflated-counts", "check": "Reported counts reflect leaf tasks only, not index files. Should show ~3 pending tasks, not 15+"}
+      ]
     }
   ]
 }

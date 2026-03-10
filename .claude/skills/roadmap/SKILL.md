@@ -34,6 +34,48 @@ allowed-tools:
 
 **PRIMER PASO de CUALQUIER operación** (pending, loop, plan, sin argumentos, modo autónomo). Ejecutar SIEMPRE, ANTES de cualquier otra acción — incluyendo antes del gate check de rootline. Este paso NO requiere rootline.
 
+### Paso 0: Detección de Modo
+
+1. `test -d .git` en el directorio actual
+   - **SI** → **single-repo mode**. Continuar a Paso 1.
+   - **NO** → **workspace mode**. Continuar a Paso 0.1.
+
+### Paso 0.1: Workspace Discovery
+
+El workspace mode permite coordinar múltiples repos desde un directorio padre (ej: `/opt/` con backscroll, rootline, forge como subdirectorios). Cada repo mantiene su propio `roadmap.local.md` y `<roadmap-root>` — el workspace los agrega.
+
+1. Si existe `.claude/roadmap.local.md` en cwd con `mode: workspace` en frontmatter:
+   - Leer `repos:` map como base (para repos con paths atípicos, ej: `.git` nested)
+2. Escanear subdirectorios inmediatos buscando `.git` + `.claude/roadmap.local.md`:
+   ```bash
+   for d in */; do
+     test -d "$d/.git" && test -f "$d/.claude/roadmap.local.md" && echo "$d"
+   done
+   ```
+3. Para cada repo encontrado (auto-discovered + workspace config):
+   - Leer su `.claude/roadmap.local.md` → extraer `roadmap-root`
+   - Computar `abs-roadmap-root` = `<cwd>/<repo-path>/<roadmap-root>`
+   - Computar sus propios helpers (`<where-not-done>`, `<where-active>`, `<where-leaf>`)
+     usando la config de ese repo (o defaults si faltan)
+4. Construir tabla `<repos>` = `[{name, repo-path, abs-roadmap-root, config}]`
+5. Imprimir checkpoint workspace:
+
+```
+Bootstrap (workspace mode):
+  repos detectados: N
+  ┌─────────────┬───────────────────────────────┬──────────┐
+  │ Repo        │ roadmap-root                  │ Source   │
+  ├─────────────┼───────────────────────────────┼──────────┤
+  │ backscroll  │ /opt/backscroll/docs/epics    │ auto     │
+  │ rootline    │ /opt/rootline/docs/epics      │ auto     │
+  │ homeserver  │ /opt/homeserver/auto.../epics │ ws-cfg   │
+  └─────────────┴───────────────────────────────┴──────────┘
+```
+
+Después del checkpoint, continuar al **Routing por Subcomando** con `<repos>` disponible.
+
+### Paso 1: Single-repo Bootstrap (sin cambios si viene de Paso 0)
+
 1. Leer `.claude/roadmap.local.md`. Si no existe:
    - Preguntar al usuario: ¿Dónde vive el roadmap? (ej: `docs/epics`)
    - Crear `.claude/roadmap.local.md` con el frontmatter mínimo (ver template abajo)
@@ -140,6 +182,13 @@ Una vez completado el bootstrap, determinar el modo según `$ARGUMENTS` y leer e
 | *(sin argumentos)* | [decision-tree-subcommand.md](decision-tree-subcommand.md) | Árbol de decisión para priorizar ramas |
 | `loop [--filter] [--max] [--pr]` | [loop-subcommand.md](loop-subcommand.md) | Ejecutar tasks pendientes en loop con confirmación |
 | *(texto libre)* | [autonomous-mode.md](autonomous-mode.md) | Descomposición autónoma de proyecto |
+
+**Flag global `--repo`** (solo workspace mode):
+- Si `$ARGUMENTS` contiene `--repo <name>`: resolver a un solo repo de `<repos>`,
+  establecer sus variables (`<roadmap-root>`, helpers) como si fuera single-repo,
+  y proceder normalmente. Remover `--repo <name>` de `$ARGUMENTS` antes del dispatch.
+- Ejemplo: `/roadmap pending --repo backscroll` → pending filtrado a backscroll.
+- En single-repo mode, `--repo` se ignora silenciosamente.
 
 **Regla de dispatch**:
 1. Si `$ARGUMENTS` empieza con `pending`, `loop`, o `plan` → subcomando directo.

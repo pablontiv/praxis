@@ -11,6 +11,23 @@ Ejecutar Tasks pendientes en loop con confirmacion entre cada uno.
 - `--skip-reviews`: Desactivar quality gates (security review y checkpoint review)
 - `--pr`: Crear feature branch por Story y PR por Story (requiere `gh` CLI). Sin este flag, push directo al branch actual.
 
+## Workspace mode
+
+En workspace mode, el loop opera en **un solo repo a la vez** (default).
+
+- **Con `--repo <name>`** (o ya resuelto en bootstrap): proceder como single-repo
+  usando `<abs-roadmap-root>` y `<repo-path>` de ese repo. Todos los `git` commands
+  usan `git -C <repo-path>` (ej: `git -C /opt/backscroll add ...`).
+
+- **Sin `--repo`**: ejecutar discovery rápida y pedir selección:
+  1. Para cada repo en `<repos>`, ejecutar en paralelo:
+     `rootline tree <abs-roadmap-root>/ --where '<where-leaf> && <where-not-done>' --output table`
+  2. Contar pendientes por repo
+  3. Pedir selección con `AskUserQuestion`:
+     "En qué repo querés ejecutar el loop?"
+     Opciones: repos con pendientes > 0 (mostrar conteo)
+  4. Una vez seleccionado → proceder como single-repo con ese repo
+
 ## Fase 1: Discovery
 
 1. Ejecutar `rootline graph --check <roadmap-root>/` para validar dependencias antes de empezar

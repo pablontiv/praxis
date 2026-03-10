@@ -2,12 +2,19 @@
 
 Generar **arbol de decision** que muestre ramas ejecutables, cadenas de dependencia, y bloqueos para decidir que loop implementar.
 
-## Paso 1: Recopilar datos (3 comandos en paralelo)
+## Workspace mode
 
-Ejecutar en paralelo:
-1. `rootline tree <roadmap-root>/ --where "<where-leaf> and <where-not-done>" --output json` — arbol jerarquico con paths, estados y conteos completed/total (~2 KB, reemplaza stats + query)
-2. `rootline graph <roadmap-root>/ --where "<where-leaf> and <where-not-done>" --output json` — grafo de dependencias entre pendientes (~3 KB)
-3. `git log -5 --format='%h %s'` — ultimos commits para proximidad
+Si `<repos>` existe (workspace mode): ejecutar Paso 1 **por cada repo** en `<repos>`.
+Los comandos son independientes entre repos — lanzar todos en paralelo (N×3 comandos).
+En Paso 4, agrupar ramas por repo con prefijo `[repo-name]`.
+En Paso 5, agregar criterio: "Focalizarme en un solo proyecto? → `/roadmap --repo <name>`".
+
+## Paso 1: Recopilar datos (3 comandos en paralelo, por repo)
+
+Para cada repo (o el unico repo en single-repo mode), ejecutar en paralelo:
+1. `rootline tree <abs-roadmap-root>/ --where "<where-leaf> and <where-not-done>" --output json` — arbol jerarquico con paths, estados y conteos completed/total (~2 KB, reemplaza stats + query)
+2. `rootline graph <abs-roadmap-root>/ --where "<where-leaf> and <where-not-done>" --output json` — grafo de dependencias entre pendientes (~3 KB)
+3. `git -C <repo-path> log -5 --format='%h %s'` — ultimos commits para proximidad (en single-repo: `git log` sin `-C`)
 4. (Opcional) Si `command -v backscroll >/dev/null 2>&1`: `backscroll search "blocked" --robot --max-tokens 1000` — sesiones previas pueden explicar por qué tasks fueron bloqueadas o diferidas
 
 **IMPORTANTE**: Despues de Paso 1, NO ejecutar mas comandos bash. Los Pasos 2-5 procesan los JSONs obtenidos.
@@ -43,30 +50,33 @@ Dentro de ejecutables, identificar **quick wins** (ramas con 1 solo task).
 
 ## Paso 4: Renderizar arbol de decision
 
-Formato de salida:
+Formato de salida (workspace mode usa prefijo `[repo]` en cada rama):
 
 ```
 ROADMAP DECISION TREE — N/M completados (X%)
 
 Que objetivo priorizar?
 │
-├─► RAMA: Feature Name (Epic) — N tasks, tipo dominante
+├─► [backscroll] RAMA: Feature Name (Epic) — N tasks, tipo dominante
 │   │
 │   T001: nombre                    [estado, tipo]
 │   │   ↓ desbloquea
 │   T002: nombre                    [estado, tipo]
 │       ↓ CIERRA [que capacidad]
 │
-├─► RAMA: ...
+├─► [rootline] RAMA: ...
 │
-└─► QUICK WIN — task aislado
-    T001: nombre                    [estado, tipo]
+└─► QUICK WINS (cross-repo)
+    [backscroll] T045: nombre       [estado, tipo]
+    [rootline]   T012: nombre       [estado, tipo]
 
 BLOQUEADAS SIN CAMINO DIRECTO
 │
-├── TXXX: nombre    [blocker: descripcion]
-└── TXXX: nombre    [blocker: descripcion]
+├── [backscroll] TXXX: nombre    [blocker: descripcion]
+└── [rootline]   TXXX: nombre    [blocker: descripcion]
 ```
+
+En single-repo mode, omitir el prefijo `[repo]` (formato original).
 
 Reglas de renderizado:
 - Usar `├─►` para ramas ejecutables, `├──` para bloqueadas
@@ -82,6 +92,9 @@ Al final del arbol, agregar flowchart de decision:
 ```
 CRITERIOS DE DECISION
 │
+├─ Quiero focalizarme en un solo proyecto?            (solo workspace mode)
+│  ├─ SI → /roadmap --repo <name>
+│  └─ NO ↓
 ├─ Hay rama en progreso (ultimo commit)?
 │  ├─ SI → Cerrar esa rama primero
 │  └─ NO ↓
@@ -94,3 +107,4 @@ CRITERIOS DE DECISION
 ```
 
 Adaptar el flowchart al estado real (referenciar ramas concretas en cada hoja).
+En single-repo mode, omitir el primer criterio.
