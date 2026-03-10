@@ -118,6 +118,12 @@ Create a new line of inquiry with anti-presupposition process.
    - Count active lines (max 2-3). If 3+, ask which to pause first.
    - Name must be kebab-case.
 
+1.5. **Prior work check** (si `command -v backscroll >/dev/null 2>&1`):
+   ```bash
+   backscroll search "[line-topic]" --robot --max-tokens 2000
+   ```
+   Si hay resultados, mostrar al usuario: sesiones previas discutieron este tema. Preguntar: referenciar esos hallazgos o empezar desde cero?
+
 2. **Create structure**: `lines/[name]/` with:
    - `QUESTION.md` — from `shared/templates/QUESTION.md`
    - `FIELD-LOG.md` — from `shared/templates/FIELD-LOG.md`
@@ -158,6 +164,7 @@ Document a Plan-Act-Observe-Reflect cycle for a line.
    See [anti-presupposition.md](anti-presupposition.md) — "In cycle" section.
 
 4. **ACT phase**: Document concrete actions, references, code, decisions in `### What I did`.
+   - Si `command -v backscroll >/dev/null 2>&1`, buscar observaciones previas: `backscroll search "TOPIC" --robot --max-tokens 2000` para evitar re-recorrer terreno cubierto en sesiones pasadas.
 
 5. **OBSERVE phase**: Ask what happened, what surprised, what wasn't understood. Document in `### Observations`.
 
@@ -394,6 +401,10 @@ Resume a paused line of inquiry.
 3. **Check capacity**: If already 3 active lines, warn and ask which to pause first.
 
 4. **Review state**: Read QUESTION.md and latest cycle in FIELD-LOG.md. Present a summary so the user can re-orient.
+
+4.5. **Session history** (si `command -v backscroll >/dev/null 2>&1`):
+   `backscroll search "[line-name]" --robot --max-tokens 2000`
+   Mostrar hallazgos relevantes junto con el review de QUESTION.md/FIELD-LOG.md.
 
 5. **Update system**: Update `.claude/rules/current-state.md` — move line from "Paused" to "Active".
 

@@ -89,6 +89,12 @@ rootline query --where 'isIndex == false' --count 2>/dev/null
 
 **Fallback** (si rootline no disponible): escanear `lines/`, `theories/` manualmente, buscar `> Estado: Fase` en *.md, verificar MAP.md.
 
+**Backscroll** (si disponible — `command -v backscroll >/dev/null 2>&1`):
+```bash
+backscroll search "$ARGUMENTS" --robot --max-tokens 2000
+```
+Si hay resultados de sesiones previas sobre el tema, factorizarlos en la decisión de routing (puede existir trabajo previo en sesiones pasadas).
+
 #### Si EMPTY:
 Presentar estado del framework (current-state.md + rootline data):
 - Lineas activas/pausadas y su fase
@@ -104,6 +110,7 @@ Buscar trabajo existente sobre el tema:
 2. `rootline query theories/ --output table 2>/dev/null` — buscar teoria relacionada
 3. `rootline query --where 'metodo == "hypothesize"' --output table 2>/dev/null` — investigaciones sobre el tema
 4. **Fallback** (sin rootline): buscar en `lines/`, `theories/`, y `> Estado: Fase` en *.md
+4b. **Backscroll** (si disponible): `backscroll search "$TOPIC" --robot --max-tokens 2000` — sesiones previas discutiendo este tema?
 5. Si existe -> preguntar al usuario: continuar existente o crear nuevo?
 6. Si no existe -> caer a Tier 2
 

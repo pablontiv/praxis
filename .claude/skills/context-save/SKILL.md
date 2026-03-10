@@ -10,7 +10,7 @@ description: |
   preservar/recuperar estado de trabajo — incluso si no dice "context-save"
   explícitamente, e incluso si solo dice "ya acabé por hoy" o "save my
   progress." Para buscar en el historial de conversaciones pasadas, usar
-  sessions en su lugar.
+  backscroll en su lugar.
 user-invocable: true
 argument-hint: "[save | restore | list]"
 allowed-tools:
@@ -233,6 +233,14 @@ Summary:  <resumen>
 ## Modified Files
 <content>
 ```
+
+### Step 3.5: Enrich with session history (optional)
+
+If `command -v backscroll >/dev/null 2>&1`:
+```bash
+backscroll search "KEY_TOPIC_FROM_RESUMEN" --robot --max-tokens 2000
+```
+Show related session discussions alongside the saved state to provide broader context. If no results, continue silently.
 
 ### Step 4: Update estado
 

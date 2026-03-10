@@ -65,6 +65,14 @@ rootline query theories/ --output table 2>/dev/null
 
 If related work exists, inform the user before proceeding: show what was found, where it is, and ask whether to reference it or proceed independently.
 
+### Backscroll: discusiones previas en sesiones
+
+Si `command -v backscroll >/dev/null 2>&1`, buscar también en el historial de sesiones:
+```bash
+backscroll search "TOPIC" --robot --max-tokens 2000
+```
+Sesiones pasadas pueden contener evaluaciones informales, decisiones o evidencia sobre este tema que nunca se formalizaron en documentos. Surfacear antes de iniciar una nueva investigación.
+
 ## Frontmatter schema
 
 Investigation documents should live in directories with a `.stem` schema that validates their frontmatter:

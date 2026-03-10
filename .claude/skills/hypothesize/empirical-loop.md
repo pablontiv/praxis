@@ -57,6 +57,14 @@ Queries formuladas:
 
 ## ACT — Ejecutar la investigación
 
+### 0. Prior session evidence (antes de web search)
+
+Si `command -v backscroll >/dev/null 2>&1`:
+```bash
+backscroll search "[keywords de la CAP o sub-hipótesis]" --robot --max-tokens 2000
+```
+Sesiones pasadas pueden contener observaciones empíricas, resultados de prototipos o evidencia informal. Clasificar hallazgos con los mismos criterios de calidad de evidencia (probablemente calidad "Media" — discusión documentada, no benchmark formal).
+
 ### 1. Web search
 
 Ejecutar queries (WebSearch o defuddle para páginas específicas). Para cada resultado:

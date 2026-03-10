@@ -69,6 +69,10 @@ Para cada task en orden:
 
 3. **Leer Task**: `Read` del archivo .md completo para entender que pide
 
+3.5. **Prior attempts** (opcional, si `command -v backscroll >/dev/null 2>&1`):
+   `backscroll search "TASK_TITLE_KEYWORDS" --robot --max-tokens 1000`
+   Si este task fue intentado antes y revertido/bloqueado, surfacear ese contexto.
+
 4. **Implementar**:
    - Si el Task tiene `tipo:` en frontmatter que corresponde a un skill
      conocido del proyecto, invocarlo via `Skill` tool

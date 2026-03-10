@@ -8,6 +8,7 @@ Ejecutar en paralelo:
 1. `rootline tree <roadmap-root>/ --where "<where-leaf> and <where-not-done>" --output json` — arbol jerarquico con paths, estados y conteos completed/total (~2 KB, reemplaza stats + query)
 2. `rootline graph <roadmap-root>/ --where "<where-leaf> and <where-not-done>" --output json` — grafo de dependencias entre pendientes (~3 KB)
 3. `git log -5 --format='%h %s'` — ultimos commits para proximidad
+4. (Opcional) Si `command -v backscroll >/dev/null 2>&1`: `backscroll search "blocked" --robot --max-tokens 1000` — sesiones previas pueden explicar por qué tasks fueron bloqueadas o diferidas
 
 **IMPORTANTE**: Despues de Paso 1, NO ejecutar mas comandos bash. Los Pasos 2-5 procesan los JSONs obtenidos.
 
