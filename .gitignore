@@ -14,9 +14,10 @@ shared/
 .claude/rules/connections.md
 .claude/roadmap.local.md
 
-# Eval workspaces and results
+# Eval workspaces and results (skill-creator)
 *-workspace/
 .claude/skills/*/evals/
+dashboard/
 
 # Agent worktrees (ephemeral)
 .claude/worktrees/
