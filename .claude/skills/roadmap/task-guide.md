@@ -1,4 +1,3 @@
-<!-- No editar. Fuente: repo pablontiv/praxis -->
 # Task Guide — Crear Task AI-Ready
 
 ## Workflow

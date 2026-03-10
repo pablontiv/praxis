@@ -1,4 +1,5 @@
 ---
+source: pablontiv/praxis
 name: roadmap
 description: |
   Usar cuando el usuario sabe QUÉ construir y necesita planificar CÓMO —
@@ -26,7 +27,6 @@ allowed-tools:
   - AskUserQuestion
   - ExitPlanMode
 ---
-<!-- No editar. Fuente: repo pablontiv/praxis -->
 
 # /roadmap — Framework de Planificación AI-Native
 
@@ -71,6 +71,24 @@ Expresiones helper (pre-computar una vez, reusar en todos los comandos):
 - `<where-not-done>`: `not (estado in <done-statuses>)`
 - `<where-active>`: `estado in <active-statuses>`
 - `<where-leaf>`: `<leaf-filter>`
+
+**Checkpoint obligatorio**: Imprimir los helpers computados antes de ejecutar cualquier query. Ejemplo para un proyecto con `done-statuses: ['Completed', 'Obsolete']`:
+
+```
+Bootstrap:
+  roadmap-root: docs/epics
+  <where-leaf>:     isIndex == false
+  <where-not-done>: not (estado in ["Completed", "Obsolete"])
+  <where-active>:   estado in ["Pending", "Specified", "In Progress"]
+```
+
+**Query de referencia** (con helpers ya sustituidos):
+
+```bash
+rootline tree docs/epics/ --where 'isIndex == false and not (estado in ["Completed", "Obsolete"])' --output table
+```
+
+**Anti-patrón**: Ejecutar `rootline tree/query/stats` sin incluir `isIndex == false` en `--where`. Sin este filtro, los resultados mezclan index files (READMEs de Epic, Feature, Story) con tasks reales, inflando conteos. Toda query que reporta trabajo pendiente o progreso debe incluir `<where-leaf>`.
 
 ---
 
@@ -123,7 +141,11 @@ Una vez completado el bootstrap, determinar el modo según `$ARGUMENTS` y leer e
 | `loop [--filter] [--max] [--pr]` | [loop-subcommand.md](loop-subcommand.md) | Ejecutar tasks pendientes en loop con confirmación |
 | *(texto libre)* | [autonomous-mode.md](autonomous-mode.md) | Descomposición autónoma de proyecto |
 
-**Regla de dispatch**: Si `$ARGUMENTS` empieza con `pending`, `loop`, o `plan` → subcomando. Si está vacío → decision tree. Si es texto libre → modo autónomo.
+**Regla de dispatch**:
+1. Si `$ARGUMENTS` empieza con `pending`, `loop`, o `plan` → subcomando directo.
+2. Si está vacío → decision tree.
+3. Si pide **ver estado, progreso, o resumen** (ej: "ver pendientes", "status", "overview", "que falta", "ver roadmaps") → tratar como `pending`.
+4. Si describe **features a construir** o pide descomposición → modo autónomo.
 
 ---
 

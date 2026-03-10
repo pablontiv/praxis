@@ -1,4 +1,3 @@
-<!-- No editar. Fuente: repo pablontiv/praxis -->
 # Epic Guide — Descomponer Intención Estratégica
 
 ## Cuándo Crear un Epic

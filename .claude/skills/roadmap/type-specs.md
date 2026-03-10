@@ -1,4 +1,3 @@
-<!-- No editar. Fuente: repo pablontiv/praxis -->
 # Especificación Técnica por Tipo de Task
 
 ## Descubrimiento de tipos

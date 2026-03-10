@@ -1,4 +1,3 @@
-<!-- No editar. Fuente: repo pablontiv/praxis -->
 # Marco de Trabajo para Desarrollo con Agentes AI
 
 **Versión:** 1.0

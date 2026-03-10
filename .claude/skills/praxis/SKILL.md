@@ -1,4 +1,5 @@
 ---
+source: pablontiv/praxis
 name: praxis
 description: |
   SIEMPRE usar este skill como punto de entrada por defecto cuando la intención
