@@ -49,7 +49,7 @@ Esto copia los skills a `~/.claude/skills/`, haciéndolos disponibles en cualqui
 | Dependencia | Requerida por | Instalación |
 |-------------|---------------|-------------|
 | [`rootline`](https://github.com/pablontiv/rootline) | `/roadmap` (todos los subcomandos) | `curl -fsSL https://raw.githubusercontent.com/pablontiv/rootline/master/install.sh \| bash` |
-| [`backscroll`](https://github.com/pablontiv/backscroll) | `/backscroll` (búsqueda de sesiones) | `cd /opt/backscroll && cargo build --release && cp target/release/backscroll /usr/local/bin/` |
+| [`backscroll`](https://github.com/pablontiv/backscroll) | `/backscroll` (búsqueda de sesiones, skill global del repo backscroll) | `cargo install --git https://github.com/pablontiv/backscroll.git` |
 
 `rootline` es un motor de base de datos sobre filesystem que trata directorios como tablas, archivos como records, y YAML frontmatter como metadata. `/roadmap` lo usa para validación, queries, auto-numbering, scaffolding y grafos de dependencia.
 
@@ -79,7 +79,6 @@ Esto copia los skills a `~/.claude/skills/`, haciéndolos disponibles en cualqui
 | `/discover [sub]` | Exploración abierta con ciclos Plan-Act-Observe-Reflect. | Ideas nuevas, preguntas abiertas, exploración sin hipótesis previa. |
 | `/hypothesize [tema]` | Investigación estructurada de 5 fases con trazabilidad lógica. | Claims que necesitan validación, investigación con método, falsación. |
 | `/roadmap [args]` | Descomposición en epics → features → stories → tasks. | Specs listos para planificar, trabajo listo para ejecutar. |
-| `/backscroll [query]` | Búsqueda full-text en historial de sesiones (FTS5 + BM25). | Recuperar contexto de sesiones anteriores. |
 
 ### /praxis — Proxy del Flujo
 
@@ -136,10 +135,6 @@ Descomposición jerárquica: Epic > Feature > Story > Task.
 
 Requiere [`rootline` CLI](#dependencias) — no opera sin ella.
 
-### /backscroll — Historial
-
-Busca en sesiones anteriores de Claude Code usando backscroll (FTS5 full-text search con ranking BM25). Resultados rankeados por relevancia, no solo coincidencia textual.
-
 ## Agents
 
 | Agent | Descripción |
@@ -178,7 +173,6 @@ Define dónde vive la jerarquía del roadmap. Usado por `/roadmap` y `sdd-valida
 │   ├── discover/         ← exploración + templates
 │   ├── hypothesize/      ← investigación 5 fases
 │   ├── roadmap/          ← planificación + guías
-│   └── backscroll/       ← historial (FTS5 via backscroll)
 ├── agents/               ← grounded-theory, sdd-validator
 ├── rules/                ← praxis-pipeline.md
 └── hooks/                ← SessionStart hook
