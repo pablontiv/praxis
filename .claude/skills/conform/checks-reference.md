@@ -62,16 +62,19 @@ PASS if conventional commit regex pattern found.
 
 **Detect**: Check `.githooks/pre-push` contains:
 1. `rootline validate` (docs validation)
-2. `git diff --name-only` with drift detection logic (code dir changed but docs unchanged)
+2. `git diff --name-only` with drift detection logic — two scopes:
+   - **Source drift**: source dir changed but docs unchanged
+   - **Infra drift**: CI/scripts/config changed (`.github/`, `install.sh`, `install.ps1`, `Justfile`, `Cargo.toml`/`go.mod`) but docs unchanged
 3. Build command (ecosystem-specific)
 4. Skill sync (`cp -r` to `~/.claude/skills/`)
 
-PASS if all four present. WARN if partial.
+PASS if all four present (both drift scopes count as #2). WARN if partial.
 
 **Remediate**: Generate from `templates/hooks/pre-push.sh` with ecosystem params. Key placeholders:
 - `{{SOURCE_DIR}}`: `cmd/` (Go) or `src/` (Rust)
 - `{{BUILD_RELEASE_CMD}}`: ecosystem build command
 - `{{PROJECT_NAME}}`: repo name
+- `{{INFRA_PATHS}}`: `.github/ install.sh install.ps1 Justfile` + ecosystem config (`Cargo.toml` for Rust, `go.mod .goreleaser.yml` for Go)
 
 ---
 

@@ -50,5 +50,8 @@ check_recipe: |
 test_recipe: "go test ./... -race"
 fmt_recipe: "gofmt -l -w ."
 
+# Pre-push infra drift paths
+infra_paths: ".github/ .goreleaser.yml install.sh install.ps1 Justfile go.mod"
+
 # Minimum version
 min_version: "Go 1.24+"

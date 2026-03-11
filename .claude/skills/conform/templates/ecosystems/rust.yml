@@ -53,5 +53,8 @@ check_recipe: |
 test_recipe: "cargo test --all-features"
 fmt_recipe: "cargo fmt --all"
 
+# Pre-push infra drift paths
+infra_paths: ".github/ install.sh install.ps1 Justfile Cargo.toml"
+
 # Minimum version
 min_version: "Rust 1.85+"
