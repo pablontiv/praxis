@@ -93,6 +93,20 @@ PASS if all three present. WARN if partial.
 
 ---
 
+### H6: Skill sync in hooks
+
+**Why**: Claude Code skills in `.claude/skills/` must stay in sync with `~/.claude/skills/` so the user always has the latest version. Hooks automate this on push and merge.
+
+**Detect**: Check `.githooks/pre-push` AND `.githooks/post-merge` both contain:
+```bash
+grep -q '.claude/skills' .githooks/pre-push .githooks/post-merge 2>/dev/null
+```
+PASS if both hooks sync skills. WARN if only one does.
+
+**Remediate**: Already included in `templates/hooks/pre-push.sh` and `templates/hooks/post-merge.sh`. Ensure the skill sync block is present.
+
+---
+
 ## CI/CD Checks
 
 ### C1: CI workflow with quality gates
@@ -173,6 +187,56 @@ permissions:
   contents: read
 ```
 Keep any per-job overrides (like `contents: write` on release jobs).
+
+---
+
+### C6: Cross-platform release binaries
+
+**Why**: Users on different platforms need pre-built binaries. A single-platform release limits adoption.
+
+**Detect**: Release workflow(s) produce binaries for ≥2 of: linux, darwin, windows.
+- **Rust**: Multiple `cargo build --release` or `cargo zigbuild` steps with different `--target` values, or separate release jobs per platform
+- **Go**: `.goreleaser.yml` with `builds:` containing multiple `goos`/`goarch` entries
+
+PASS if ≥2 platforms covered. WARN if only one.
+
+**Remediate**: Add per-platform release jobs (Rust) or goreleaser targets (Go). Reference existing C3 release infrastructure.
+
+---
+
+### C7: Release smoke tests
+
+**Why**: A binary that can't start is worse than no binary. Smoke tests catch linking errors, missing symbols, and broken builds before users download them.
+
+**Detect**: Release workflow runs `--version` and `--help` (or subcommand help) on built binaries BEFORE upload/publish.
+```bash
+grep -E '\-\-version|\-\-help' .github/workflows/*.yml
+```
+PASS if smoke test steps exist in release job(s) between build and upload steps.
+
+**Remediate**: Add smoke test step after build:
+```yaml
+- name: Smoke Test Binary
+  run: |
+    ./binary --version
+    ./binary --help
+```
+
+---
+
+### C8: Changelog generation
+
+**Why**: Users need to know what changed between releases. Automated changelog from conventional commits ensures consistency.
+
+**Detect**:
+- **Rust**: `cliff.toml` exists AND `git-cliff` in release workflow
+- **Go**: `.goreleaser.yml` has `changelog:` section (goreleaser generates changelogs natively)
+
+PASS if changelog automation present. WARN if manual only.
+
+**Remediate**:
+- **Rust**: Install `git-cliff`, create `cliff.toml` from template, add step to release job: `git-cliff --latest --strip header --output RELEASE_NOTES.md`
+- **Go**: Ensure `.goreleaser.yml` has `changelog:` with `use: git` or `use: github`
 
 ---
 
@@ -336,6 +400,66 @@ PASS if all present. WARN if Justfile exists but missing some recipes.
 | F5 | SECURITY.md | `test -f SECURITY.md` | Generate with standard disclosure template using repo name |
 | F6 | LICENSE | `test -f LICENSE` | Generate MIT with current year and `$OWNER` |
 | F7 | CODE_OF_CONDUCT.md | `test -f CODE_OF_CONDUCT.md` | Contributor Covenant v2.1 summary |
+
+---
+
+### F8: Install scripts
+
+**Why**: Pre-built binaries need a frictionless install path. `curl | bash` is the standard for Unix, PowerShell for Windows.
+
+**Detect**: `test -f install.sh`. If CI produces Windows binaries (C6 detected Windows target), also check `test -f install.ps1`.
+
+PASS if install.sh exists. WARN if Windows binaries exist but no install.ps1.
+
+**Remediate**: Generate from `templates/config/install-$LANGUAGE.sh`. Key features: platform detection, latest release from GitHub API, install to `~/.local/bin/` or `/usr/local/bin/`.
+
+---
+
+### F9: Linter config file
+
+**Why**: Explicit linter configuration ensures consistent code quality across contributors and CI. Without it, lint rules depend on tool defaults which may change between versions.
+
+**Detect**:
+- **Rust**: `test -f .clippy.toml`
+- **Go**: `test -f .golangci.yml` OR `test -f .golangci.yaml`
+
+PASS if ecosystem-appropriate linter config exists.
+
+**Remediate**: Generate with strict defaults:
+- **Rust**: `.clippy.toml` with nursery + pedantic group
+- **Go**: `.golangci.yml` with govet, errcheck, staticcheck, unused, ineffassign, gocritic, gosec
+
+---
+
+### F10: Dependency policy config (Rust only)
+
+**Why**: `cargo deny` enforces license compliance, bans specific crates, and checks advisories. The config file makes the policy explicit and reproducible.
+
+**Detect**: `test -f deny.toml` AND file contains `[advisories]`, `[licenses]`, `[bans]` sections.
+
+PASS if deny.toml exists with all three sections. SKIP for non-Rust ecosystems.
+
+**Remediate**: Generate `deny.toml` from template with safe defaults (MIT/Apache-2.0/BSD allow list, advisory checking enabled, wildcard dependencies warned).
+
+---
+
+### F11: Release profile optimized (Rust only)
+
+**Why**: Default release builds leave performance and size on the table. LTO, single codegen unit, and symbol stripping produce smaller, faster binaries.
+
+**Detect**: `Cargo.toml` contains `[profile.release]` with `lto = true` AND `strip = true`.
+
+PASS if both present. WARN if `[profile.release]` exists but missing optimizations. SKIP for non-Rust ecosystems.
+
+**Remediate**: Add to `Cargo.toml`:
+```toml
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+```
 
 ---
 

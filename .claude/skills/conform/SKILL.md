@@ -108,6 +108,7 @@ See [checks-reference.md](checks-reference.md) for detailed detection logic per 
 | H3 | Commit-msg: conventional commits | `.githooks/commit-msg` contains conventional commit regex pattern |
 | H4 | Pre-push: docs validate + drift + build + sync | `.githooks/pre-push` contains rootline validate + drift detection + build + skill sync |
 | H5 | Post-merge: sync + build + rootline fix | `.githooks/post-merge` contains skill sync + build + rootline fix |
+| H6 | Skill sync in hooks | pre-push and post-merge sync `.claude/skills/` to `~/.claude/skills/` |
 
 **CI/CD checks** (skip if `--component` != ci):
 
@@ -118,6 +119,9 @@ See [checks-reference.md](checks-reference.md) for detailed detection logic per 
 | C3 | Release job | CI has ecosystem-specific release job (goreleaser / cargo build) |
 | C4 | Actions pinned to SHA | All `uses:` lines have `@[a-f0-9]{40}` pattern |
 | C5 | Top-level permissions | Every workflow has top-level `permissions:` block |
+| C6 | Cross-platform release | Release produces binaries for ≥2 platforms (linux, darwin, windows) |
+| C7 | Release smoke tests | Release workflow runs `--version` + `--help` on binaries before upload |
+| C8 | Changelog generation | `git-cliff` or goreleaser changelog in release workflow |
 
 **Security checks** (skip if `--component` != security):
 
@@ -143,6 +147,10 @@ See [checks-reference.md](checks-reference.md) for detailed detection logic per 
 | F5 | SECURITY.md | File exists at root |
 | F6 | LICENSE | File exists at root |
 | F7 | CODE_OF_CONDUCT.md | File exists at root |
+| F8 | Install scripts | `install.sh` exists (+ `install.ps1` if Windows target in CI) |
+| F9 | Linter config file | `.clippy.toml` (Rust) or `.golangci.yml` (Go) exists |
+| F10 | Dependency policy config | `deny.toml` (Rust) exists with advisories + licenses + bans |
+| F11 | Release profile optimized | Cargo.toml `[profile.release]` has LTO + strip (Rust only) |
 
 **Governance checks** (part of security component):
 
@@ -168,6 +176,7 @@ HOOKS
 [PASS] H3  Commit-msg: conventional commits enforced
 [FAIL] H4  Pre-push: missing drift detection
 [PASS] H5  Post-merge: sync + build + fix
+[PASS] H6  Skill sync in hooks
 
 CI/CD
 ─────
@@ -176,6 +185,9 @@ CI/CD
 [PASS] C3  Release job configured
 [PASS] C4  Actions pinned to SHA
 [PASS] C5  Top-level permissions set
+[PASS] C6  Cross-platform release binaries
+[PASS] C7  Release smoke tests
+[PASS] C8  Changelog generation
 
 SECURITY
 ────────
@@ -197,6 +209,10 @@ CONFIG
 [PASS] F5  SECURITY.md
 [PASS] F6  LICENSE
 [PASS] F7  CODE_OF_CONDUCT.md
+[PASS] F8  Install scripts
+[PASS] F9  Linter config file
+[PASS] F10 Dependency policy config
+[PASS] F11 Release profile optimized
 
 GOVERNANCE
 ──────────
@@ -204,8 +220,8 @@ GOVERNANCE
 [SKIP] G2  Repo settings (gh not available)
 [PASS] G3  Issue/PR templates
 
-SCORE: 23/25 checks passing (92%)
-Hooks: 4/5 | CI/CD: 5/5 | Security: 6/8 | Config: 7/7 | Governance: 1/3
+SCORE: 31/33 checks passing (94%)
+Hooks: 5/6 | CI/CD: 8/8 | Security: 6/8 | Config: 11/11 | Governance: 1/3
 ```
 
 If `--audit-only`, STOP HERE and present the report.
@@ -235,10 +251,13 @@ For missing files, create from templates in `templates/` directory. Adapt to `$E
 | F6 | Generate LICENSE | `LICENSE` (MIT with current year) |
 | F7 | Generate CODE_OF_CONDUCT.md | `CODE_OF_CONDUCT.md` |
 | G1 | Generate CODEOWNERS | `.github/CODEOWNERS` (`* @$OWNER`) |
+| F8 | `templates/config/install-$LANGUAGE.sh` | `install.sh` |
+| F9 | `templates/config/clippy.toml` or `golangci.yml` | `.clippy.toml` / `.golangci.yml` |
+| F10 | `templates/config/deny.toml` | `deny.toml` (Rust only) |
 
 ### Hook setup
 
-When creating hooks (H1-H5):
+When creating hooks (H1-H6):
 1. Create `.githooks/` directory
 2. Write hook files with `chmod +x`
 3. Set `git config core.hooksPath .githooks`

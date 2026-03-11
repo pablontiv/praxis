@@ -53,5 +53,16 @@ fmt_recipe: "gofmt -l -w ."
 # Pre-push infra drift paths
 infra_paths: ".github/ .goreleaser.yml install.sh install.ps1 Justfile go.mod"
 
+# Linter config
+linter_config_file: ".golangci.yml"
+
+# Dependency policy (Go uses govulncheck, no separate config file)
+dependency_policy_file: ""
+dependency_policy_cmd: "govulncheck ./..."
+
+# Changelog (goreleaser handles changelog natively)
+changelog_tool: "goreleaser"
+changelog_config: ".goreleaser.yml"
+
 # Minimum version
 min_version: "Go 1.24+"

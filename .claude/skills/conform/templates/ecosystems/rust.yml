@@ -56,5 +56,16 @@ fmt_recipe: "cargo fmt --all"
 # Pre-push infra drift paths
 infra_paths: ".github/ install.sh install.ps1 Justfile Cargo.toml"
 
+# Linter config
+linter_config_file: ".clippy.toml"
+
+# Dependency policy
+dependency_policy_file: "deny.toml"
+dependency_policy_cmd: "cargo deny check licenses bans advisories"
+
+# Changelog
+changelog_tool: "git-cliff"
+changelog_config: "cliff.toml"
+
 # Minimum version
 min_version: "Rust 1.85+"
