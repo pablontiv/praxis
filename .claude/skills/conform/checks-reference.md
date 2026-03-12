@@ -288,11 +288,13 @@ PASS if changelog automation present. WARN if manual only.
 ```bash
 gh api repos/$OWNER/$REPO/branches/$BRANCH/protection 2>/dev/null
 ```
-- PASS if response includes `required_pull_request_reviews` AND `enforce_admins.enabled: true`
-- WARN if `required_pull_request_reviews` present but `enforce_admins: false` (common for solo-maintainer repos where owner needs bypass capability)
+- PASS if response includes `required_pull_request_reviews` with `required_approving_review_count >= 1` AND `dismiss_stale_reviews: true` AND `allow_force_pushes.enabled: false`
+- WARN if `required_pull_request_reviews` present but `dismiss_stale_reviews: false` (stale approvals survive new pushes)
 - FAIL if no branch protection or no PR review requirement
 
-**Remediate**: Apply via `gh api --method PUT` (see SKILL.md Phase 2 for payload). Note: requires public repo or GitHub Pro for free accounts. For solo-maintainer repos, `enforce_admins: false` is acceptable — note in report but don't flag as FAIL.
+**Policy**: `enforce_admins: false` is the standard for solo-maintainer repos (owner needs bypass for emergencies). `dismiss_stale_reviews: true` ensures new commits invalidate prior approvals (critical when bots push to PRs).
+
+**Remediate**: Apply via `gh api --method PUT` (see SKILL.md Phase 2 for payload). Requires GitHub Pro for private repos. The payload uses `enforce_admins: false` + `dismiss_stale_reviews: true` + `required_approving_review_count: 1`.
 
 ---
 

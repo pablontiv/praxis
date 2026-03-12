@@ -130,7 +130,7 @@ See [checks-reference.md](checks-reference.md) for detailed detection logic per 
 | S1 | Vulnerability scanning in CI | Ecosystem-specific audit command in workflow |
 | S2 | Gitleaks in CI | `gitleaks` in workflow with `fetch-depth: 0` |
 | S3 | Dependabot config | `.github/dependabot.yml` exists with ecosystem + github-actions entries |
-| S4 | Branch protection | `gh api .../protection` returns PR reviews (WARN if enforce_admins=false) |
+| S4 | Branch protection | `gh api .../protection` returns PR reviews + dismiss_stale + no force push |
 | S5 | Secret scanning enabled | `gh api .../` shows secret_scanning.status = enabled |
 | S6 | CodeQL workflow | `codeql-action` in any workflow file |
 | S7 | Scorecard workflow | `ossf/scorecard-action` in any workflow file |
@@ -307,10 +307,14 @@ For `__PLACEHOLDER__` values in security templates (runtime-resolved):
 Branch protection payload:
 ```json
 {
-  "required_status_checks": { "strict": true, "contexts": ["<detected-ci-job-names>"] },
-  "enforce_admins": true,
-  "required_pull_request_reviews": { "required_approving_review_count": 1 },
+  "required_pull_request_reviews": {
+    "dismiss_stale_reviews": true,
+    "require_code_owner_reviews": false,
+    "required_approving_review_count": 1
+  },
+  "enforce_admins": false,
   "restrictions": null,
+  "required_status_checks": null,
   "allow_force_pushes": false,
   "allow_deletions": false
 }
@@ -371,4 +375,4 @@ Next steps:
 - **Additive only** — never delete existing workflow jobs, hooks, or governance files. Only add or modify.
 - **Respect existing files** — if a hook/config already exists with more content than the template, preserve the extra content and only add what's missing.
 - **Language detection is best-effort** — if unsure, ask the user.
-- **Private repos** can't have branch protection on free plans. Detect 403 response and note.
+- **Private repos** require GitHub Pro for branch protection. Detect 403 response and note as SKIP with upgrade recommendation.
