@@ -10,8 +10,11 @@ description: |
   mal estado, o antes de iniciar un workflow complejo. Triggers: "preflight",
   "check environment", "verificar entorno", "que falta", "why is this failing",
   "pre-check" — incluso si el usuario no pide un chequeo de entorno e incluso
-  si el error parece no estar relacionado con el entorno. También corre como
-  gate antes de otros skills con --for <skill>.
+  si el error parece no estar relacionado con el entorno. En proyectos de
+  infraestructura (k8s, IaC), usar PROACTIVAMENTE al inicio de sesión o tras
+  compactación para detectar problemas de salud del cluster (pods not ready,
+  restarts altos, servicios caídos) ANTES de iniciar cualquier investigación.
+  También corre como gate antes de otros skills con --for <skill>.
 user-invocable: true
 argument-hint: "[--full | --quick | --for <skill>]"
 allowed-tools:
