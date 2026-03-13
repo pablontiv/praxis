@@ -150,6 +150,7 @@ Mapear a skill y **ejecutar directamente** (no solo sugerir):
 | Investigacion con evidencia | `Skill: hypothesize [archivo]` | Reconocimiento del Tier 1/2 |
 | Specs/requirements listos para descomponer | `Skill: roadmap [contenido]` | Reconocimiento + docs del repo |
 | Codigo/datos | Sugerir attach a linea existente | — |
+| Optimizar/auditar context files, CLAUDE.md, agents, skills, rules | `Skill: context-audit $ARGUMENTS` | N/A — opera sobre archivos de contexto |
 
 Antes de delegar, mostrar al usuario:
 - Que se detecto (fase, clasificacion)
