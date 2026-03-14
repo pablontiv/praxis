@@ -28,13 +28,6 @@ No es obligatorio seguir el flujo completo. Cada skill es independiente. El fluj
 - **Fases, no cierres**: cuando una línea produce un artefacto, cambia de fase — no termina
 - **Separación framework/datos**: la disciplina es portable (skills), el conocimiento es local (proyecto)
 
-## Actualización de Estado
-
-- `.claude/rules/current-state.md` — se actualiza con cada cambio de estado
-- `.claude/rules/connections.md` — se actualiza cuando emergen conexiones
-- `MAP.md` — solo lo toca `/discover update-map`
-- SIEMPRE actualizar state files al cambiar estados
-
 ## Skills Disponibles
 
 | Skill | Propósito |
