@@ -1,0 +1,13 @@
+# Gitleaks secret scanning CI job — ecosystem independent
+# Paste into CI workflow jobs section.
+
+  gitleaks:
+    name: Secret Scanning
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@__CHECKOUT_SHA__ # __CHECKOUT_TAG__
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@__GITLEAKS_SHA__ # __GITLEAKS_TAG__
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
