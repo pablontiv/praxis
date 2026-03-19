@@ -1,0 +1,25 @@
+name: CodeQL
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+  schedule:
+    - cron: '0 6 * * 1'
+
+permissions:
+  security-events: write
+  contents: read
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@__CHECKOUT_SHA__ # __CHECKOUT_VERSION__
+
+      - uses: github/codeql-action/init@__CODEQL_SHA__ # __CODEQL_VERSION__
+        with:
+          languages: __LANGUAGE__
+
+      - uses: github/codeql-action/analyze@__CODEQL_SHA__ # __CODEQL_VERSION__
