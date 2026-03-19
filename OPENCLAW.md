@@ -53,7 +53,7 @@ desarrollado por pablontiv. Esta es una adaptación completa que incluye los 8 s
 | Skill | Notas |
 |-------|-------|
 | `conform` | Funciona con exec para gh CLI; sin gh = skips API checks |
-| `context-save` | Usa filesystem directamente |
+| `context-save` | Requiere `rootline` — no disponible sin instalarlo |
 | `hypothesize` | Research via web_search integrado |
 | `preflight` | Validaciones con herramientas nativas |
 | `praxis` | Orquestación con sessions_spawn |
